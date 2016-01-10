@@ -1,0 +1,112 @@
+{
+    ":removeextension": [
+        ":rmext",
+        ":unloadext"
+    ],
+    ":listextensions": [
+        ":lsextension",
+        ":lsextensions",
+        ":lsext"
+    ],
+    ":listroles": [
+        ":lsroles",
+        ":lsrole",
+        ":lsr"
+    ],
+    ":listpermissions": [
+        ":lsperm",
+        ":lsperms",
+        ":lsp"
+    ],
+    ":listalias": [
+        ":lsalias",
+        ":lsa"
+    ],
+    ":refreshrolefile": [
+        ":refrf",
+        ":refr",
+        ":relrf",
+        ":relr"
+    ],
+    ":refreshpermissionfile": [
+        ":refpermf",
+        ":refpf",
+        ":refp",
+        ":relpermf",
+        ":relpf",
+        ":relp"
+    ],
+    ":refreshalias": [
+        ":refal",
+        ":relalias",
+        ":relal"
+    ],
+    ":refreshconfig": [
+        ":refconf",
+        ":refc",
+        ":relconf",
+        ":relc"
+    ],
+    ":refreshextension": [
+        ":refreshextensions",
+        ":relextension",
+        ":relext",
+        ":refextensions",
+        ":refextension",
+        ":refext"
+    ],
+    ":removealias": [
+        ":delalias",
+        ":delal",
+        ":rmalias",
+        ":rmal"
+    ],
+    ":addalias": [
+        ":newalias",
+        ":newal",
+        ":addal"
+    ],
+    ":deleterole": [
+        ":rmroles",
+        ":rmrole",
+        ":rmr",
+        ":delroles",
+        ":delrole",
+        ":delr"
+    ],
+    ":addextension": [
+        ":addextensions",
+        ":loadestension",
+        ":loadestensions",
+        ":newextension",
+        ":newextensions",
+        ":addext",
+        ":loadext",
+        ":newext"
+    ],
+    ":removeextension": [
+        ":removeextensions",
+        ":unloadestension",
+        ":unloadestensions",
+        ":remext",
+        ":unloadext"
+    ],
+    ":part": [
+        ":leave",
+        ":p",
+        ":l"
+    ],
+    ":join": [
+        ":j"
+    ],
+    ":privmsg": [
+        ":pm"
+    ],
+    ":exit": [
+        ":e",
+        ":shutdown"
+    ],
+    ":sendraw": [
+        ":sr"
+    ]
+}

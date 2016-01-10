@@ -1,0 +1,232 @@
+[recv]::NickServ!NickServ@services.irc.omnimaga.org NOTICE Spike :nBot!DigitalBOT@sorunome.de has just authenticated as you (nBot)
+[recv]::nBot!DigitalBOT@omni-F58FE563.de JOIN :#thebot
+[recv]::Digital!Digital@d1g1t4l.be PRIVMSG #thebot :nBot: :p
+[recv]::nBot!DigitalBOT@omni-F58FE563.de PART #thebot
+{warn}:KeyboardInterrupt
+{warn}:(2, <frame object at 0x188b538>)
+[send]:QUIT manual shutdown
+(info):waiting for threads to stop...
+(info):omitted main thread thread MainThread
+(info):omitted daemon thread Echo.scroll
+(info):omitted current thread thread omnimaga
+(info):omitted daemon thread Echo.scroll
+(info):omitted daemon thread Echo.scroll
+(info):joining thread dTimeout
+(info):thread dTimeout exited!
+(info):omitted daemon thread Echo.scroll
+(info):omitted daemon thread Echo.scroll
+(info):joining thread receive
+(info):thread receive exited!
+(info):omitted daemon thread Echo.scroll
+(info):all threads stopped!
+(info):exiting in 2 seconds
+
+
+
+====================--------------------====================
+
+
+(info):-----SETTING EVERYTHING UP-----
+
+
+
+====================--------------------====================
+
+
+(info):-----SETTING EVERYTHING UP-----
+{warn}:KeyboardInterrupt
+{warn}:(2, <frame object at 0xff8c98>)
+[send]:QUIT manual shutdown
+{warn}:Traceback (most recent call last):
+{warn}:  File "IRC.py", line 535, in sendRaw
+{warn}:    self.socket.send(bytes(msg, self.encoding))
+{warn}:AttributeError: 'IRCServer' object has no attribute 'socket'
+
+
+
+====================--------------------====================
+
+
+(info):-----SETTING EVERYTHING UP-----
+(info):added extension: 'server_msg/serverReplyHandler.py'
+(info):added extension: 'user_msg/aliases.py'
+(info):added extension: 'user_msg/callResponse.py'
+(info):added extension: 'user_msg/permissions.py'
+(info):added extension: 'user_msg/usercommands.py'
+(info):added extension: 'user_msg/aliascommands.py'
+(info):added extension: 'user_msg/admin.py'
+(info):added extension: 'user_msg/dev.py'
+(info):added extension: 'user_msg/help.py'
+[send]:NICK ivevtskary 
+[recv]::muffin.irc.omnimaga.org NOTICE AUTH :*** Found your hostname
+(info):waiting for PING :
+[send]:PONG :D207521A
+[recv]:PING :D207521A
+(info):'PING :' found!
+[send]:USER DigitalBOT omnimaga omnimaga trains ftw
+(info):waiting for 266
+[recv]::muffin.irc.omnimaga.org 001 ivevtskary :Welcome to the omnimaga.org IRC Network ivevtskary!DigitalBOT@dslb-178-007-100-092.178.007.pools.vodafone-ip.de
+[recv]::muffin.irc.omnimaga.org 002 ivevtskary :Your host is muffin.irc.omnimaga.org, running version Unreal3.2.10.2
+[recv]::muffin.irc.omnimaga.org 003 ivevtskary :This server was created Sat May 9 2015 at 00:16:55 CEST
+[recv]::muffin.irc.omnimaga.org 004 ivevtskary muffin.irc.omnimaga.org Unreal3.2.10.2 iowghraAsORTVSxNCWqBzvdHtGpI lvhopsmntikrRcaqOALQbSeIKVfMCuzNTGjZ
+[recv]::muffin.irc.omnimaga.org 005 ivevtskary CMDS=KNOCK,MAP,DCCALLOW,USERIP,STARTTLS UHNAMES NAMESX SAFELIST HCN MAXCHANNELS=50 CHANLIMIT=#:50 MAXLIST=b:60,e:60,I:60 NICKLEN=30 CHANNELLEN=32 TOPICLEN=307 KICKLEN=307 AWAYLEN=307 :are supported by this server
+[recv]::muffin.irc.omnimaga.org 005 ivevtskary MAXTARGETS=20 WALLCHOPS WATCH=128 WATCHOPTS=A SILENCE=15 MODES=12 CHANTYPES=# PREFIX=(qaohv)~&@%+ CHANMODES=beI,kfL,lj,psmntirRcOAQKVCuzNSMTGZ NETWORK=omnimaga.org CASEMAPPING=ascii EXTBAN=~,qjncrRa ELIST=MNUCT :are supported by this server
+[recv]::muffin.irc.omnimaga.org 005 ivevtskary STATUSMSG=~&@%+ EXCEPTS INVEX :are supported by this server
+[recv]::muffin.irc.omnimaga.org NOTICE ivevtskary :*** You are connected to muffin.irc.omnimaga.org with TLSv1.2-AES256-GCM-SHA384-256bits
+[recv]::muffin.irc.omnimaga.org 251 ivevtskary :There are 30 users and 23 invisible on 5 servers
+[recv]::muffin.irc.omnimaga.org 252 ivevtskary 22 :operator(s) online
+[recv]::muffin.irc.omnimaga.org 254 ivevtskary 31 :channels formed
+[recv]::muffin.irc.omnimaga.org 255 ivevtskary :I have 10 clients and 1 servers
+[recv]::muffin.irc.omnimaga.org 265 ivevtskary 10 33 :Current local users 10, max 33
+[recv]::muffin.irc.omnimaga.org 266 ivevtskary 53 68 :Current global users 53, max 68
+(info):'266' found!
+[recv]::muffin.irc.omnimaga.org 375 ivevtskary :- muffin.irc.omnimaga.org Message of the Day - 
+[send]:ISON :nBot
+[recv]::muffin.irc.omnimaga.org 376 ivevtskary :End of /MOTD command.
+(info):waiting for  303 
+[recv]::ivevtskary MODE ivevtskary :+zG
+[recv]::InfoServ!InfoServ@services.irc.omnimaga.org NOTICE ivevtskary :*** Message(s) of the Day ***
+[recv]::InfoServ!InfoServ@services.irc.omnimaga.org NOTICE ivevtskary :[Migration Delayed] Notice from Eeems, posted 20:01 on 11/08/2014:
+[recv]::InfoServ!InfoServ@services.irc.omnimaga.org NOTICE ivevtskary :The migration has been delayed until further notice: http://ourl.ca/21664/396380
+[recv]::InfoServ!InfoServ@services.irc.omnimaga.org NOTICE ivevtskary :[IRC Information] Notice from Eeems, posted 16:41 on 07/07/2014:
+[recv]::InfoServ!InfoServ@services.irc.omnimaga.org NOTICE ivevtskary :Please view http://ourl.ca/p/irc for more information about Omnimaga's IRC
+[recv]::InfoServ!InfoServ@services.irc.omnimaga.org NOTICE ivevtskary :[IRC Group Syncing] Notice from Eeems, posted 05:57 on 03/09/2014:
+[recv]::InfoServ!InfoServ@services.irc.omnimaga.org NOTICE ivevtskary :http://www.omnimaga.org/news/irc-group-syncing
+[recv]::InfoServ!InfoServ@services.irc.omnimaga.org NOTICE ivevtskary :*** End of Message(s) of the Day ***
+[recv]::NickServ!NickServ@services.irc.omnimaga.org NOTICE ivevtskary :Welcome to Omninet, ivevtskary! Here on Omninet, we provide services to enable the registration of nicknames and channels! For details, type /msg NickServ help and /msg ChanServ help.
+[recv]::muffin.irc.omnimaga.org 303 ivevtskary :nBot 
+(info):' 303 ' found!
+[send]:ISON :Spike
+(info):waiting for  303 
+[recv]::muffin.irc.omnimaga.org 303 ivevtskary :
+(info):' 303 ' found!
+[send]:NICK Spike 
+[send]:PRIVMSG nickServ :identify nbot tritratra
+(info):waiting for :+r
+[recv]::ivevtskary!DigitalBOT@dslb-178-007-100-092.178.007.pools.vodafone-ip.de NICK :Spike
+[recv]::NickServ!NickServ@services.irc.omnimaga.org NOTICE Spike :This nickname is registered. Please choose a different nickname, or identify via /msg NickServ identify <password>.
+[recv]::NickServ!NickServ@services.irc.omnimaga.org NOTICE Spike :You are now identified for nBot.
+[recv]::NickServ MODE Spike :+r
+(info):':+r' found!
+[send]::Spike MODE Spike :+B
+[send]::Spike MODE Spike :+x
+(info):True
+[send]:JOIN :#thebot
+[send]:WHO #thebot
+[send]:NOTICE Digital : Hey!
+(info):connected!
+[recv]::muffin.irc.omnimaga.org NOTICE Spike :BOTMOTD File not found
+[recv]::Spike MODE Spike :+B
+{warn}:KeyboardInterrupt
+{warn}:(2, <frame object at 0x1e67dd8>)
+[send]:QUIT manual shutdown
+(info):waiting for threads to stop...
+(info):omitted main thread thread MainThread
+(info):omitted daemon thread Echo.scroll
+(info):omitted current thread thread omnimaga
+(info):all threads stopped!
+(info):exiting in 2 seconds
+
+
+
+====================--------------------====================
+
+
+(info):-----SETTING EVERYTHING UP-----
+(info):added extension: 'server_msg/serverReplyHandler.py'
+(info):added extension: 'user_msg/aliases.py'
+(info):added extension: 'user_msg/callResponse.py'
+(info):added extension: 'user_msg/permissions.py'
+(info):added extension: 'user_msg/usercommands.py'
+(info):added extension: 'user_msg/aliascommands.py'
+(info):added extension: 'user_msg/admin.py'
+(info):added extension: 'user_msg/dev.py'
+(info):added extension: 'user_msg/help.py'
+[send]:NICK zvkstgvozf 
+(info):waiting for PING :
+[send]:PONG :30C27B9E
+[recv]:PING :30C27B9E
+(info):'PING :' found!
+[send]:USER DigitalBOT omnimaga omnimaga trains ftw
+(info):waiting for 266
+[recv]::muffin.irc.omnimaga.org 001 zvkstgvozf :Welcome to the omnimaga.org IRC Network zvkstgvozf!DigitalBOT@dslb-178-007-100-092.178.007.pools.vodafone-ip.de
+[recv]::muffin.irc.omnimaga.org 002 zvkstgvozf :Your host is muffin.irc.omnimaga.org, running version Unreal3.2.10.2
+[recv]::muffin.irc.omnimaga.org 003 zvkstgvozf :This server was created Sat May 9 2015 at 00:16:55 CEST
+[recv]::muffin.irc.omnimaga.org 004 zvkstgvozf muffin.irc.omnimaga.org Unreal3.2.10.2 iowghraAsORTVSxNCWqBzvdHtGpI lvhopsmntikrRcaqOALQbSeIKVfMCuzNTGjZ
+[recv]::muffin.irc.omnimaga.org 005 zvkstgvozf CMDS=KNOCK,MAP,DCCALLOW,USERIP,STARTTLS UHNAMES NAMESX SAFELIST HCN MAXCHANNELS=50 CHANLIMIT=#:50 MAXLIST=b:60,e:60,I:60 NICKLEN=30 CHANNELLEN=32 TOPICLEN=307 KICKLEN=307 AWAYLEN=307 :are supported by this server
+[recv]::muffin.irc.omnimaga.org 005 zvkstgvozf MAXTARGETS=20 WALLCHOPS WATCH=128 WATCHOPTS=A SILENCE=15 MODES=12 CHANTYPES=# PREFIX=(qaohv)~&@%+ CHANMODES=beI,kfL,lj,psmntirRcOAQKVCuzNSMTGZ NETWORK=omnimaga.org CASEMAPPING=ascii EXTBAN=~,qjncrRa ELIST=MNUCT :are supported by this server
+[recv]::muffin.irc.omnimaga.org 005 zvkstgvozf STATUSMSG=~&@%+ EXCEPTS INVEX :are supported by this server
+[recv]::muffin.irc.omnimaga.org NOTICE zvkstgvozf :*** You are connected to muffin.irc.omnimaga.org with TLSv1.2-AES256-GCM-SHA384-256bits
+[recv]::muffin.irc.omnimaga.org 251 zvkstgvozf :There are 30 users and 23 invisible on 5 servers
+[recv]::muffin.irc.omnimaga.org 252 zvkstgvozf 22 :operator(s) online
+[recv]::muffin.irc.omnimaga.org 254 zvkstgvozf 31 :channels formed
+[recv]::muffin.irc.omnimaga.org 255 zvkstgvozf :I have 10 clients and 1 servers
+[recv]::muffin.irc.omnimaga.org 265 zvkstgvozf 10 33 :Current local users 10, max 33
+[recv]::muffin.irc.omnimaga.org 266 zvkstgvozf 53 68 :Current global users 53, max 68
+(info):'266' found!
+[recv]::muffin.irc.omnimaga.org 375 zvkstgvozf :- muffin.irc.omnimaga.org Message of the Day - 
+[send]:ISON :nBot
+[recv]::muffin.irc.omnimaga.org 376 zvkstgvozf :End of /MOTD command.
+(info):waiting for  303 
+[recv]::zvkstgvozf MODE zvkstgvozf :+zG
+[recv]::InfoServ!InfoServ@services.irc.omnimaga.org NOTICE zvkstgvozf :*** Message(s) of the Day ***
+[recv]::InfoServ!InfoServ@services.irc.omnimaga.org NOTICE zvkstgvozf :[Migration Delayed] Notice from Eeems, posted 20:01 on 11/08/2014:
+[recv]::InfoServ!InfoServ@services.irc.omnimaga.org NOTICE zvkstgvozf :The migration has been delayed until further notice: http://ourl.ca/21664/396380
+[recv]::InfoServ!InfoServ@services.irc.omnimaga.org NOTICE zvkstgvozf :[IRC Information] Notice from Eeems, posted 16:41 on 07/07/2014:
+[recv]::InfoServ!InfoServ@services.irc.omnimaga.org NOTICE zvkstgvozf :Please view http://ourl.ca/p/irc for more information about Omnimaga's IRC
+[recv]::InfoServ!InfoServ@services.irc.omnimaga.org NOTICE zvkstgvozf :[IRC Group Syncing] Notice from Eeems, posted 05:57 on 03/09/2014:
+[recv]::InfoServ!InfoServ@services.irc.omnimaga.org NOTICE zvkstgvozf :http://www.omnimaga.org/news/irc-group-syncing
+[recv]::InfoServ!InfoServ@services.irc.omnimaga.org NOTICE zvkstgvozf :*** End of Message(s) of the Day ***
+[recv]::NickServ!NickServ@services.irc.omnimaga.org NOTICE zvkstgvozf :Welcome to Omninet, zvkstgvozf! Here on Omninet, we provide services to enable the registration of nicknames and channels! For details, type /msg NickServ help and /msg ChanServ help.
+[recv]::muffin.irc.omnimaga.org 303 zvkstgvozf :nBot 
+(info):' 303 ' found!
+[send]:ISON :Spike
+(info):waiting for  303 
+[recv]::muffin.irc.omnimaga.org 303 zvkstgvozf :
+(info):' 303 ' found!
+[send]:NICK Spike 
+[send]:PRIVMSG nickServ :identify nbot tritratra
+(info):waiting for :+r
+[recv]::zvkstgvozf!DigitalBOT@dslb-178-007-100-092.178.007.pools.vodafone-ip.de NICK :Spike
+[recv]::NickServ!NickServ@services.irc.omnimaga.org NOTICE Spike :This nickname is registered. Please choose a different nickname, or identify via /msg NickServ identify <password>.
+[recv]::NickServ!NickServ@services.irc.omnimaga.org NOTICE Spike :You are now identified for nBot.
+[recv]::NickServ MODE Spike :+r
+(info):':+r' found!
+[send]::Spike MODE Spike :+B
+[send]::Spike MODE Spike :+x
+(info):True
+[send]:JOIN :#thebot
+[send]:WHO #thebot
+[send]:NOTICE Digital : Hey!
+(info):connected!
+[recv]::muffin.irc.omnimaga.org NOTICE Spike :BOTMOTD File not found
+[recv]::Spike MODE Spike :+B
+[recv]::Spike MODE Spike :+x
+[recv]::Spike!DigitalBOT@omni-E8B91653.pools.vodafone-ip.de JOIN :#thebot
+[recv]::muffin.irc.omnimaga.org 353 Spike = #thebot :Spike ~alberth Digital ~alberthrocks ^ %TopicBot AaronBot2 ChanServ Sorunome 
+[recv]::muffin.irc.omnimaga.org 366 Spike #thebot :End of /NAMES list.
+[recv]::muffin.irc.omnimaga.org 352 Spike #thebot DigitalBOT omni-E8B91653.pools.vodafone-ip.de muffin.irc.omnimaga.org Spike HrB :0 trains ftw
+[recv]::muffin.irc.omnimaga.org 352 Spike #thebot albert alberth.rocks irp.irc.omnimaga.org alberth Gr~ :2 Albert H
+[recv]::muffin.irc.omnimaga.org 352 Spike #thebot Digital d1g1t4l.be muffin.irc.omnimaga.org Digital Hr :0 Digital
+[recv]::muffin.irc.omnimaga.org 352 Spike #thebot alberth alberth.rocks omni.irc.omnimaga.org alberthrocks Hr~ :2 Albert H
+[recv]::muffin.irc.omnimaga.org 352 Spike #thebot OmnomIRC 23.82.187.93 omni.irc.omnimaga.org ^ Hr :2 ^
+[recv]::muffin.irc.omnimaga.org 352 Spike #thebot OmnomIRC 23.82.187.93 omni.irc.omnimaga.org TopicBot Hr% :2 TopicBot
+[recv]::muffin.irc.omnimaga.org 352 Spike #thebot AaronB2 backup.withg.org omni.irc.omnimaga.org AaronBot2 H :2 AaronB2
+[recv]::muffin.irc.omnimaga.org 352 Spike #thebot ChanServ services.irc.omnimaga.org hidden ChanServ H* :0 Channel Services
+[recv]::muffin.irc.omnimaga.org 352 Spike #thebot sorunome global.users.irc.omnimaga.org muffin.irc.omnimaga.org Sorunome Hr* :0 Sorunome
+[recv]::muffin.irc.omnimaga.org 315 Spike #thebot :End of /WHO list.
+[recv]::Digital!Digital@d1g1t4l.be PRIVMSG #thebot :Spike: ?help admin
+[send]:NOTICE Digital : ( Help - Spike - admin )
+[send]:NOTICE Digital : available admin commands:
+[send]:NOTICE Digital :  :listextensions   :addextension   :removeextension   :refreshextension
+[send]:NOTICE Digital :  :listroles        :addrole        :removerole        :refreshrolefile
+[send]:NOTICE Digital :  :listalias        :addalias       :removealias       :refreshalias
+[send]:NOTICE Digital :  :listpermissions  :addpermission  :removepermission  :refreshpermissionfile
+[send]:NOTICE Digital :  :refreshhelpfile  :refreshconfig
+[send]:NOTICE Digital :  :notice  :privmsg  :join  :part  :sendraw  :exit
+[recv]::Digital!Digital@d1g1t4l.be PRIVMSG #thebot :Spike: :refrconfig
+[recv]::Digital!Digital@d1g1t4l.be PRIVMSG #thebot :Spike: :refconfig
+[recv]::Digital!Digital@d1g1t4l.be PRIVMSG #thebot :Spike: :refconf
+[send]:PRIVMSG #thebot :config refreshed!
+[recv]::Digital!Digital@d1g1t4l.be PRIVMSG #thebot :raorr
+[recv]::^!OmnomIRC@23.82.187.93 PRIVMSG #thebot :12(O)<Digital> !uptime spike

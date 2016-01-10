@@ -1,0 +1,256 @@
+{
+    "pages": [
+        "admin", "user"
+    ],
+    "admin": [
+        "available admin commands:",
+        " :listextensions   :addextension   :removeextension   :refreshextension",
+        " :listroles        :addrole        :removerole        :refreshrolefile",
+        " :listalias        :addalias       :removealias       :refreshalias",
+        " :listpermissions  :addpermission  :removepermission  :refreshpermissionfile",
+        " :refreshhelpfile  :refreshconfig",
+        " :notice  :privmsg  :join  :part  :sendraw  :exit"
+        ],
+    "user": [
+        "available user commands:",
+        " !uptime ?help"
+    ],
+    "!uptime": {
+        "arguments": "<user>[ <uptime|sign-on|idle>]",
+        "help": [
+            "shows uptime / sign-on / idle of user if available"
+            ],
+        "examples": [
+            "!uptime nBot idle"
+            ]
+        },
+    ":listextensions": {
+        "arguments": "None",
+        "help": [
+            "Lists all active extensions"
+            ],
+        "examples": [
+            ":listextensions"
+            ]
+        },
+    ":listroles": {
+        "arguments": "",
+        "help": [
+            "lists all roles"
+            ],
+        "examples": [
+            ":listroles"
+            ]
+        },
+    ":listpermissions": {
+        "arguments": "<nick!ident@hostmask>",
+        "help": [
+            "lists all roles the specified user has"
+            ],
+        "examples": [
+            ":listroles nBot!awesome@d1g1t4l.be"
+            ]
+        },
+    ":listalias":  {
+        "arguments": "[<realcommand>]",
+        "help": [
+            "with 0 arguments: lists all realcommands with aliases",
+            "with 1 argumetn:  lists all aliases of the specified realcommand"
+            ],
+        "examples": [
+            ":listalias",
+            ":listalias :addalias"
+            ]
+        },
+    ":refreshrolefile": {
+        "arguments": "None",
+        "help": [
+            "refreshes the role File"
+            ],
+        "examples": [
+            ":refreshrolefile"
+            ]
+        },
+    ":refreshpermissionfile": {
+        "arguments": "None",
+        "help": [
+            "refreshes the permuser File"
+            ],
+        "examples": [
+            ":refreshpermissionfile"
+            ]
+        },
+    ":refreshalias": {
+        "arguments": "None",
+        "help": [
+            "refreshes the alias file"
+            ],
+        "examples": [
+            ":refreshalias"
+            ]
+        },
+    ":refreshconfig": {
+        "arguments": "None",
+        "help": [
+            "refreshes the config file"
+            ],
+        "examples": [
+            ":refreshconfig"
+            ]
+        },
+    ":refreshextension": {
+        "arguments": "None",
+        "help": [
+            "refreshes the extension file"
+            ],
+        "examples": [
+            ":refreshextension"
+            ]
+        },
+    ":addalias": {
+        "arguments": "<realcommand> <alias[ ...]>",
+        "help": [
+            "adds alias for realcommand"
+            ],
+        "examples": [
+            ":addalias :addalias :newalias",
+            ":addalias :addalias :createalias :cralias :nwal"
+            ]
+        },        
+    ":removealias": {
+        "arguments": "<realcommand> <alias[ ...]>",
+        "help": [
+            "removes alias from realcommand",
+            "realcommands with no aliases are removed from the list automatically"
+            ],
+        "examples": [
+            ":removealias :removealias :remalias",
+            ":removealias :removealias :delalias :deletealias :rmal"
+            ]
+        },
+    ":addpermission": {
+        "arguments": "<role> <command[ ...]>",
+        "help": [
+            "adds command to role",
+            "role is automatically ceated if it doesn't exists yet"
+            ],
+        "examples": [
+            ":addpermission role :cmd1",
+            ":addpermission role :cmd1 :cmd2 :cmd3"
+            ]
+        },        
+    ":removepermission": {
+        "arguments": "<role>[ <command>[ <...>]]",
+        "help": [
+            "removes specified command(s) from role",
+            "role is automatically deleted if it is empty",
+            "if no commands specified the role is deleted"
+            ],
+        "examples": [
+            ":removepermission role :cmd1 :cmd2",
+            ":removepermission role"
+            ]
+        },        
+    ":addrole": {
+        "arguments": "<nick!ident@hostmask>[ <role>[ <...>]]",
+        "help": [
+            "adds user to role"
+            ],
+        "examples": [
+            ":addrole part :part",
+            ":addrole partandjoin :part :join"
+            ]
+        },
+    ":removerole": {
+        "arguments": "<nick!ident@hostmask>[ <role>[ <...>]]",
+        "help": [
+            "removes user from role"
+            ],
+        "examples": [
+            ":removerole part :part",
+            ":removerole partandjoin :part :join"
+            ]
+        },
+    ":addextension": {
+        "arguments": "<name.py> <type>",
+        "help": [
+            "adds specified extension",
+            "name is the filename of the extension",
+            "type is the type of the extension, for now this is msg since there is nothing other"
+            ],
+        "examples": [
+            ":addextension dev.py msg"
+            ]
+        },
+    ":removeextension": {
+        "arguments": "<name.py> <type>",
+        "help": [
+            "removes specified extension",
+            "name is the filename of the extension"
+            ],
+        "examples": [
+            ":removeextension dev.py msg"
+            ]
+        },
+    ":part": {
+        "arguments": "[<channel[ ...]>]",
+        "help": [
+            "parts/leaves specified channel(s)",
+            "if channel is ommited the current channel is parted",
+            "more than one channel can be specified"
+            ],
+        "examples": [
+            ":part",
+            ":part #nbot #muffins #cookies"
+            ]
+        },
+    ":join": {
+        "arguments": "<channel[ ...]>",
+        "help": [
+            "joins specified channel(s)",
+            "more than one channel can be specified",
+            "if a user is specified greetMsg will be written to him"
+            ],
+        "examples": [
+            ":join #muffins #trains #cookies",
+            ":join nBot"
+            ]
+        },
+    ":privmsg": {
+        "arguments": "<target> <msg>",
+        "help": [
+            "privmsgs target with msg"
+            ],
+        "examples": [
+            ":privmsg nBot I like Bots"
+            ]
+        },
+    ":notice": {
+        "arguments": "<target> <msg>",
+        "help": [
+            "notices target with msg"
+            ],
+        "examples": [
+            ":notice nBot whatch out! baaats!"
+            ]
+        },
+    ":exit": {
+        "arguments": "[restart:<True|False>][,][reason:<reason>]",
+        "help": [
+            "restarts/shutdowns the bot",
+            "reason will be send as quit reason to the server"
+            ],
+        "examples": [
+            ":exit restart:True,reason:updating"
+            ]
+        },
+    ":sendraw": {
+        "arguments": "<msg>",
+        "help": [
+            "appends a linefeed to msg and sends it to the server"
+            ],
+        "examples": [
+            ":sendraw WHOIS nBot"
+            ]
+        }
+}

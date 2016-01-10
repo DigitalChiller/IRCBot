@@ -1,0 +1,40 @@
+{
+    "move": [
+        ":join",
+        ":part"
+    ],
+    "sendraw": [
+        ":sendraw"
+    ],
+    "extension": [
+        ":reloadext",
+        ":addextension",
+        ":removeextension",
+        ":load",
+        ":unload"
+    ],
+    "globaladmin": [
+        ":exit",
+        ":join",
+        ":part",
+        ":mutecallresponse",
+        ":unmutecallresponse",
+        ":mutecallresponse",
+        ":listmutedcallresponse"
+    ],
+    "dev": [
+        ":action1",
+        ":action2",
+        ":action3"
+    ],
+    "nick": [
+        ":nick"
+    ],
+    "conf": [
+        ":reloadconfig",
+        ":showconfig"
+    ],
+    "shutdown": [
+        ":shutdown"
+    ]
+}

@@ -1,0 +1,26 @@
+{
+	"muted":[],
+	"trigger":	{ 
+		"wake up": ["\\x01action snoozes\\x01"],
+		"hey $nick": ["hey $msg_author_nick"],
+		":3": [":3"],
+		"\\x01action hugs $nick\\x01": ["\\x01action hugs $msg_author_nick\\x01"],
+		"$nick: take a note": ["\\x01action searches his pen\\x01"],
+		"everybody do the flop": [
+			"\\x01action does the flop\\x01",
+			"*ouch*"
+			],
+		"pick": ["pock"],
+		"pock": ["puck"],
+		"puck": ["pack"],
+		"pack": ["pick"],
+		"schokiii": ["nomnomnomnomnom"],
+		"!jump": ["\\x01action jumps around\\x01"],
+		"!run": ["\\x01action runs around\\x01"],
+		"!party": [
+			"you don't want a party", 
+			"you do want a PARTEEEEEY!!"
+			],
+		"okieee":  ["alaska"]
+	}
+}

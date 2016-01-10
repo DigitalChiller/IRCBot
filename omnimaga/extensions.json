@@ -1,0 +1,15 @@
+{
+    "server_msg": [
+        "serverReplyHandler.py"
+    ],
+    "user_msg": [
+        "aliases.py",
+        "callResponse.py",
+        "permissions.py",
+        "usercommands.py",
+        "aliascommands.py",
+        "admin.py",
+        "dev.py",
+        "help.py"
+       ]
+}
