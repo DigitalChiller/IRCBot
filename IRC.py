@@ -31,7 +31,7 @@ def randStr(length):
 		return temp	
 
 
-class dFile():
+class ddFile():
 	"""
 	This class is for easier File handling.
 	"""
