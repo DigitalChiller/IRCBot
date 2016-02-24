@@ -1,0 +1,23 @@
+{
+    "groups": {
+        "invite": [
+            "admin.invite"
+        ],
+        "#chanadmin": [
+            "chanadmin.join",
+            "chanadmin.part"
+        ],
+        "user": [],
+        "admin": [
+            "admin.*"
+        ],
+        "move": [
+            "admin.part",
+            "admin.join"
+        ],
+        "dev": [
+            "dev.*"
+        ]
+    },
+    "users": {}
+}
