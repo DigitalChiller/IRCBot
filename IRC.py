@@ -48,54 +48,12 @@ def randStr(length):
 			temp = temp + random.choice('abcdefghijklmnopqrstuvwxyz')
 		return temp	
 
-
-class ddFile():
-	"""
-	This class is for easier File handling.
-	"""
-	def __init__(self, filePath, fileName, *args):
-
-		if type(fileName) is not str:
-			return False
-		self.fileName = fileName
-		self.filePath = filePath
-		self.fileType = fileName.split(".")[1]
-		self.read()
-		return
-	
-	def __repr__(self):
-		return self.filePath + self.fileName
-
-	def __str__(self):
-		return "'" + self.filePath + self.fileName + "'"
-
-	def read(self):
-		with open(self.filePath + self.fileName) as f:
-			if self.fileType == "json":
-				lines = f.readlines()
-				data = json.loads("\n".join(lines))
-			elif self.fileType == "py":
-				data = compile(f.read(),self.filePath + self.fileName, "exec")
-			else:
-				data = f.read()
-		self.data = data
-		return self.data
-
-	def save(self):
-		try:
-			f = open(self.filePath + self.fileName, "w")
-			if self.fileType == "json":
-				json.dump(self.data, f, indent = 4)
-			else:
-				f.write(self.data)
-			f.close()
-		except Exception as e:
-			f.close()
-			echo(traceback.format_exc(), "warn")
-			return False
-		else:
-			return True
-
+class VariableBundle(object):
+	"""use this for variable managing"""
+	pass
+	# def __init__(self):
+	# 	super(VariableBundle, self).__init__()
+		
 class Config():
 	"""
 	This class is for easier File handling.
@@ -127,7 +85,9 @@ class PluginHandler(threading.Thread):
 		self._plugins = {}
 		self._modifiers = {}
 
-		self.lvars = locals()
+		self.cmds = {}
+		self.plVars = {}
+		self.lastTarget = ""
 
 		self.q = queue.Queue()
 		self._stopnow = False
@@ -139,24 +99,38 @@ class PluginHandler(threading.Thread):
 					return
 				time.sleep(0.01)
 
-			self.lvars = self.q.get()
-			self.lvars["self"] = self
-			self.lvars["bot"] = self.bot
+			lvars = self.q.get()
 
-			for m in self._modifiers:
-				try:
-					with open(m) as f:
-						exec(f.read(), globals(), self.lvars)
-				except:
-					error(info=m)
+			self.lastTarget = lvars["msg"]["target"]
+			lvars["self"] = self
+			lvars["bot"] = self.bot
 
-			for p in self._plugins.copy():
-				try:
-					self.lvars["plName"] = p.split("/")[-2]
-					with open(p) as f:
-						exec(f.read(), globals(), self.lvars)
-				except:
-					error(info=p)
+			for l in [self._modifiers, self._plugins]:
+				for i in l.copy():
+					try:
+						lvars["plName"] = i.split("/")[-2]
+						lvars["pv"] = self.plVars[lvars["plName"]]
+
+						with open(i) as f:
+							exec(f.read(), globals(), lvars)
+					except:
+						error(info=i)
+
+
+			# for m in self._modifiers:
+			# 	try:
+			# 		with open(m) as f:
+			# 			exec(f.read(), globals(), lvars)
+			# 	except:
+			# 		error(info=m)
+
+			# for p in self._plugins.copy():
+			# 	try:
+			# 		lvars["plName"] = p.split("/")[-2]
+			# 		with open(p) as f:
+			# 			exec(f.read(), globals(), lvars)
+			# 	except:
+			# 		error(info=p)
 
 			self.q.task_done()
 	
@@ -164,14 +138,17 @@ class PluginHandler(threading.Thread):
 		self._stopnow = True
 
 	def feedback(self, msg):
-		self.bot.privmsg(self.lvars["target"], msg)
+		if self.lastTarget != "":
+			self.bot.privmsg(self.lastTarget, msg)
+		else:
+			echo("target unknown, couldn't send '" + line + "'")
 
 	def handleError(self, error, *args, fb=True):
 		if error == "syntax":
-			self.feedback("Syntax: " + " ".join(args))
+			self.feedback("invalid syntax: " + " ".join(args))
 
 		elif error == "unknown":
-			self.feedback("UnknownError: something unexpected happend")
+			self.feedback("Unknown error: something unexpected happend")
 
 		else:
 			self.feedback(error + ": " + " : ".join(args))
@@ -185,13 +162,31 @@ class PluginHandler(threading.Thread):
 			if "plugin.py" in files:
 				self._plugins[pldir + "/plugin.py"] = {} 
 			if "modifier.py" in files:
-				self._modifiers[pldir + "/modifier.py"] = {} 
+				self._modifiers[pldir + "/modifier.py"] = {}
 
-			with open(self.pluginDir + plName + "/__init__.py") as f:
-				exec(f.read())
+			self.plVars[plName] = VariableBundle()
+			self.plVars[plName].name = plName
+			self.plVars[plName].info = "no information specified"
+
+			lvars = locals()
+			lvars["pv"] = self.plVars[plName]
+
+			with open(pldir + "/__init__.py") as f:
+				exec(f.read(), globals(), lvars)
+
+			if "help.py" in files:				
+				with open(pldir + "/help.py") as f:
+					exec(f.read(), globals(), lvars)
+
+				for cmd in lvars["pv"].help:
+					echo(self.cmds)
+					self.cmds[cmd] = self.cmds.get(cmd, []) + [plName]
+
+			echo("added plugin " + plName)
 
 		except:
-			echo(traceback.format_exc(), "warn")
+			error(info=plName)
+#			echo(traceback.format_exc(), "warn")
 			return False
 		else:
 			return True
@@ -523,7 +518,7 @@ class IRCBot(threading.Thread):
 
 		self.patServerMsg = re.compile(r":(?P<all>((?P<server>[a-z0-9.-]+)\s(?P<reply>\d\d\d|\w+)\s(?P<nick>[a-z0-9.-]+)\s(?P<suffix>.*)))(?P<target>)(?P<hostmask>)(?P<hgl>)(?P<cmd>)(?P<args>)", re.I)
 		self.patUMnorm = re.compile(r"(?:(?P<hgl>\w+):\s)?(?P<cmd>[,.:;?!]\w+)\s?(?P<args>.*)(?P<reply>)(?P<server>)", re.I)
-		self.patUMnorm = re.compile(r"(?:(?P<hgl>\w+):\s)?((?:[,.:;?!])(?P<cmd>\w+)\s?)?(?P<args>.*)(?P<reply>)(?P<server>)", re.I)
+		self.patUMnorm = re.compile(r"(?:(?P<hgl>\w+):\s)?((?P<cmdPref>[,.:;?!])(?P<cmd>\w+)\s?)?(?P<args>.*)(?P<reply>)(?P<server>)", re.I)
 		self.patMsgWHO = re.compile(r"~?(?P<ident>\w+)\s(?P<ip>[a-z0-9\.\-]+)\s(?P<server>[a-z0-9.-]+)\s(?P<nick>\w+)\s(?P<away>H|G)(?P<registered>r?)(?P<bot>B?)(?P<prefix>\*?[%~+@&]?)\s(?P<steps>:[0-9])\s(?P<realname>.*)", re.I)
 		self.patNoneMsg = re.compile(r"((?P<nick>)(?P<hostmask>)(?P<type>)(?P<target>))(?P<suffix>(?:(?:(?P<hgl>))(?P<cmd>)(?P<args>))?)(?P<reply>)(?P<server>).*?", re.I)
 		self.patUMvoid = re.compile(r"(?P<hgl>)(?P<cmd>)(?P<args>)(?P<reply>)(?P<server>).*", re.I)
