@@ -18,6 +18,5 @@
 
 pv.info = "This Plugin adds some commands devs can use to debug"
 pv.help = {}
-pv.help["help"] = ["helptext line 1", "helptext line 2"]
 
 # the end line of doom you need for navigation

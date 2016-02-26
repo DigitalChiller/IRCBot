@@ -85,7 +85,6 @@ class PluginHandler(threading.Thread):
 		self._plugins = {}
 		self._modifiers = {}
 
-		self.cmds = {}
 		self.plVars = {}
 		self.lastTarget = ""
 
@@ -115,22 +114,6 @@ class PluginHandler(threading.Thread):
 							exec(f.read(), globals(), lvars)
 					except:
 						error(info=i)
-
-
-			# for m in self._modifiers:
-			# 	try:
-			# 		with open(m) as f:
-			# 			exec(f.read(), globals(), lvars)
-			# 	except:
-			# 		error(info=m)
-
-			# for p in self._plugins.copy():
-			# 	try:
-			# 		lvars["plName"] = p.split("/")[-2]
-			# 		with open(p) as f:
-			# 			exec(f.read(), globals(), lvars)
-			# 	except:
-			# 		error(info=p)
 
 			self.q.task_done()
 	
@@ -167,6 +150,7 @@ class PluginHandler(threading.Thread):
 			self.plVars[plName] = VariableBundle()
 			self.plVars[plName].name = plName
 			self.plVars[plName].info = "no information specified"
+			self.plVars[plName].help = {}
 
 			lvars = locals()
 			lvars["pv"] = self.plVars[plName]
@@ -177,10 +161,6 @@ class PluginHandler(threading.Thread):
 			if "help.py" in files:				
 				with open(pldir + "/help.py") as f:
 					exec(f.read(), globals(), lvars)
-
-				for cmd in lvars["pv"].help:
-					echo(self.cmds)
-					self.cmds[cmd] = self.cmds.get(cmd, []) + [plName]
 
 			echo("added plugin " + plName)
 
@@ -212,6 +192,20 @@ class PluginHandler(threading.Thread):
 		for p in self._plugins:
 			temp.append(p.split("/")[-2])
 		return temp
+
+	def reloadHelp(self, plName):
+		try:
+			pldir = self.pluginDir + plName
+			self.plVars[plName].help = {}
+			lvars = locals()
+			lvars["pv"] = self.plVars[plName]
+			with open(pldir + "/help.py") as f:
+				exec(f.read(), globals(), lvars)
+
+			return True
+		except:
+			error()
+			return False
 
 
 class SocketHandler(threading.Thread):

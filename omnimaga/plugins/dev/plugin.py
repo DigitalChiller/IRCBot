@@ -41,7 +41,7 @@ if nickHgl and msg["cmdPref"] == ",":
 			bot.botdo("reconnect")
 
 		elif msg["cmd"] == "do0":
-			self.feedback(self.cmds)
+			self.feedback(sendSyntax(self, "help"))
 
 		elif msg["cmd"] == "do1":
 			self.feedback(bot.chans)

@@ -18,7 +18,11 @@
 
 pv.info = "This Plugin adds help"
 pv.help = {}
-pv.help["help"] = ["helptext line 1", "helptext line 2"]
-
+pv.help["help"] = [
+	"Syntax: '?help'",
+	" Same as '?help help'",
+	"Syntax: '?help <command>'",
+	" Shows help about the command",
+	]
 
 # the end line of doom you need for navigation

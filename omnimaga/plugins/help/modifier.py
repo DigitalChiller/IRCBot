@@ -15,15 +15,16 @@
 #    along with nBot.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-def sendSyntax(self, cmd, plugin=None):
-	if cmd in self.cmds:
-		if len(self.cmds[cmd]) == 0:
-			self.feedback("no plugin featuring this command")
-		else:
-			if len(self.cmds[cmd]) > 1 and plugin == None:
-				self.feedback("these plugins are featuring the command, please be more specific: " + ", ".join(self.cmds[cmd]))
-			elif len(self.cmds[cmd]) == 1:
-				plugin = self.cmds[cmd]
+def sendSyntax(self, cmd):
+	for p in self.lsPlugins():
+		helptext = self.plVars[p].help.get(cmd, None)
+		if helptext != None:
+			break
+	if helptext == None:
+		helptext = ["no help aviable, report this"]
+		return False
 
-			for l in self.plVars[plugin].help[cmd]:
-				self.feedback(l)
+	for l in helptext:
+		self.feedback(l)
+
+	return True
