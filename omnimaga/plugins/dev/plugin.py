@@ -13,32 +13,35 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with nBot.  If not, see <http://www.gnu.org/licenses/>.
-#
-
-
-## variables
-# msg = message dict
-# args = list of args
-# nickHgl = is bot addressed? (bot: <message>)
-# target = channel or private chat
-# fromOwner = author is owner
 # 
-## functions
+# 
+## Variables
+# msg = message dict, look at IRC.py
+# args = list of args
+# nickHgl = is bot addressed directly? (bot: <message>)
+# target = channel or private chat most responses should go in
+# fromOwner = author is owner
+# bot = the bot object
+# uperms = list of permission the user has
+# 
+## Functions
 # self.feedback(msg)
-#  use this to send something back
+#  use this to send responses
 # bot.botdo(action, *args, **kwargs)
 #  use this to tell the bot to do something
-#bot.patUMnorm = re.compile(r"(?:(?P<hgl>\w+):\s)?((?:[,.:;?!])(?P<cmd>\w+)\s?)?(?P<args>.*)(?P<reply>)(?P<server>)", re.I)
+# auth(perms, plName, command/permission*)
+#  use this to test if a user is authed to execute a command
+# isAdminOfChan(user, chan, bot, line, sendDelay)
+#  use this to detect if a user is chanadmin in the channel. see permission/modifier.py
 
-if nickHgl:
+if nickHgl and msg["cmdPref"] == ",":
 	if fromOwner or auth(uperms, plName, msg["cmd"]):
 		if msg["cmd"] == "reconnect":
 			self.feedback("bye, I'm failing")
 			bot.botdo("reconnect")
 
 		elif msg["cmd"] == "do0":
-			self.permM.update()
-			self.feedback("success")
+			self.feedback(self.cmds)
 
 		elif msg["cmd"] == "do1":
 			self.feedback(bot.chans)
