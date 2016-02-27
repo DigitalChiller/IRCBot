@@ -40,6 +40,10 @@ if nickHgl and msg["cmdPref"] == ",":
 			self.feedback("bye, I'm failing")
 			bot.botdo("reconnect")
 
+		if msg["cmd"] == "togglePingPong":
+			bot.logPingPong = not bot.logPingPong
+			self.feedback("logPingPong: " + str(bot.logPingPong))
+
 		elif msg["cmd"] == "do0":
 			self.feedback(sendSyntax(self, "help"))
 
