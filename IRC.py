@@ -700,79 +700,79 @@ class IRCBot(threading.Thread):
 
 		while not self._stopnow:
 			# sleep when nothing to do
-			if self.sH_irc.q.empty():
-				time.sleep(0.1)
-			else:
-				line = self.sH_irc.q.get()
+			try:
+				if self.sH_irc.q.empty():
+					time.sleep(0.1)
+				else:
+					line = self.sH_irc.q.get()
 
-				if self.logPingPong == False:
-					if line.split()[1] == "PONG":
-						pass
-					else:
+					# search
+					for item in self.search:
+						if line.find(item) != -1:
+							self.search[item] = line
+					
+					if re.match(self.patUMPre, line) != None:
 						echo(line, "recv")
-				else:
-					echo(line, "recv")
+						msg = re.match(self.patUMPre, line).groupdict()
+						try:
+							msg.update(re.match(self.patUMnorm, msg["suffix"]).groupdict())
+						except:
+							msg.update(re.match(self.patUMvoid, "blah").groupdict())
 
-				# search
-				for item in self.search:
-					if line.find(item) != -1:
-						self.search[item] = line
-				
-				if re.match(self.patUMPre, line) != None:
-					msg = re.match(self.patUMPre, line).groupdict()
-					try:
-						msg.update(re.match(self.patUMnorm, msg["suffix"]).groupdict())
-					except:
-						msg.update(re.match(self.patUMvoid, "blah").groupdict())
+						# replace None with "" and strip spaces
+						for item in msg:
+							if msg[item] == None:
+								msg[item] = ""
+							else:
+								msg[item] = msg[item].strip()
 
-					# replace None with "" and strip spaces
-					for item in msg:
-						if msg[item] == None:
-							msg[item] = ""
+						if self.connected and self.doMsgHandle:
+							# lowercase ident only
+							msg["ident"] = msg["ident"].lower()
+
+							author = msg["nick"].lower()+"!"+msg["hostmask"].lower()
+							fromOwner = msg["ident"] == self.config["owner"].lower()
+
+							if msg["args"].find(" ") != -1:
+								args = msg["args"].split()		#make a list out of the arguments
+							
+							elif msg["args"] == "":
+								args = []
+							
+							else:
+								args = [msg["args"]]
+							
+							# defines response target, author as target it private chat, channel otherwise
+							if self.nick.lower() == msg["target"].lower():
+								target = msg["nick"]
+							else:
+								target = msg["target"]
+
+
+							# detects if the bot is addressed directly
+							nickHgl = str.lower(msg["hgl"]) == self.nick.lower() 
+
+							self.plH_user.q.put({"msg":msg, "args":args, "target":target, "fromOwner":fromOwner, "nickHgl":nickHgl, "line":line})
+							self.sH_irc.q.task_done()
+
+					elif re.match(self.patServerMsg, line) != None:
+						msg = re.match(self.patServerMsg, line).groupdict()
+						if self.logPingPong == False and msg["reply"] in ["PING", "PONG"]:
+							pass
 						else:
-							msg[item] = msg[item].strip()
-
-					if self.connected and self.doMsgHandle:
-						# lowercase ident only
-						msg["ident"] = msg["ident"].lower()
-
-						author = msg["nick"].lower()+"!"+msg["hostmask"].lower()
-						fromOwner = msg["ident"] == self.config["owner"].lower()
-
-						if msg["args"].find(" ") != -1:
-							args = msg["args"].split()		#make a list out of the arguments
+							echo(line, "recv")
 						
-						elif msg["args"] == "":
-							args = []
-						
-						else:
-							args = [msg["args"]]
-						
-						# defines response target, author as target it private chat, channel otherwise
-						if self.nick.lower() == msg["target"].lower():
-							target = msg["nick"]
-						else:
-							target = msg["target"]
-
-
-						# detects if the bot is addressed directly
-						nickHgl = str.lower(msg["hgl"]) == self.nick.lower() 
-
-						self.plH_user.q.put({"msg":msg, "args":args, "target":target, "fromOwner":fromOwner, "nickHgl":nickHgl, "line":line})
+						self.plH_server.q.put({"msg":msg})
 						self.sH_irc.q.task_done()
+					else:
+						msg = re.match(self.patNoneMsg, line).groupdict()
+		
+						if line.find("PING") != -1:	#Ping request response thing
+							self.sendRaw("PONG {}\r\n".format(".".join(line.split()[1:3])))
 
-				elif re.match(self.patServerMsg, line) != None:
-
-					msg = re.match(self.patServerMsg, line).groupdict()
-					self.plH_server.q.put({"msg":msg})
-					self.sH_irc.q.task_done()
-				else:
-					msg = re.match(self.patNoneMsg, line).groupdict()
-	
-					if line.find("PING") != -1:	#Ping request response thing
-						self.sendRaw("PONG {}\r\n".format(".".join(line.split()[1:3])))
-
-					self.sH_irc.q.task_done()
+						self.sH_irc.q.task_done()
+			except:
+				error()
 
 	def error(self, target=False, info=""):
 		tb = traceback.format_exc()
