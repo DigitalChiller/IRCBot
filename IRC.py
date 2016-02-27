@@ -705,7 +705,13 @@ class IRCBot(threading.Thread):
 			else:
 				line = self.sH_irc.q.get()
 
-				echo(line, "recv")
+				if self.logPingPong == False:
+					if line.split()[1] == "PONG":
+						pass
+					else:
+						echo(line, "recv")
+				else:
+					echo(line, "recv")
 
 				# search
 				for item in self.search:
