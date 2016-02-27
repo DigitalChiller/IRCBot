@@ -766,7 +766,7 @@ class IRCBot(threading.Thread):
 						self.sH_irc.q.task_done()
 					else:
 						msg = re.match(self.patNoneMsg, line).groupdict()
-		
+						echo(line, "recv")
 						if line.find("PING") != -1:	#Ping request response thing
 							self.sendRaw("PONG {}\r\n".format(".".join(line.split()[1:3])))
 
