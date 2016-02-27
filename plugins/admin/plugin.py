@@ -33,19 +33,19 @@ if nickHgl:
 	if fromOwner or auth(uperms, plName, msg["cmd"]):
 		if msg["cmd"] == "join":
 			if len(args) == 1:
-				bot.botdo("join", msg["args"])
+				bot.join(msg["args"])
 			else:
 				self.handleError("syntax")
 
 		elif msg["cmd"] == "part":
 			if len(args) == 0:
-				bot.botdo("part", target)
+				bot.part(target)
 			elif len(args) == 1:
-				bot.botdo("part", msg["args"])
+				bot.part(msg["args"])
 
 		elif msg["cmd"] == "nick":
 			if len(args) == 1:
-				bot.botdo("nick", args[0])
+				bot.changeNick(args[0])
 			else:
 				self.handleError("syntax")
 
@@ -54,19 +54,13 @@ if nickHgl:
 
 		elif msg["cmd"] == "privmsg":
 			if len(args) > 1:
-				bot.botdo("privmsg", args[0], " ".join(args[1:]))
+				bot.privmsg(args[0], " ".join(args[1:]))
 			else:
 				self.handleError("syntax")
 
 		elif msg["cmd"] == "sendraw":
 			if len(args) > 1:
-				bot.botdo("raw", msg["args"])
-			else:
-				self.handleError("syntax")
-
-		elif msg["cmd"] == "botdo":
-			if len(args) > 1:
-				bot.botdo(args[0], msg["args"].split("|"))
+				bot.sendraw(msg["args"])
 			else:
 				self.handleError("syntax")
 

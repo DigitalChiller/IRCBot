@@ -25,8 +25,6 @@
 ## functions
 # self.feedback(msg)
 #  use this to send something back
-# self.botdo(action, *args, **kwargs)
-#  use this to tell the bot to do something
 
 if nickHgl:
 	if fromOwner or auth(uperms, plName, msg["cmd"]):

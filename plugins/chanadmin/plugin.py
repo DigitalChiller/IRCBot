@@ -29,16 +29,6 @@
 # self.botdo(action, *args, **kwargs)
 #  use this to tell the bot to do something
 
-# def isAdminOfChan(user, chan, bot):
-# 	if  chan in bot.chans:
-# 		if bot.chans[chan].get(user, None) in [""]:
-# 			return True
-# 		else:
-# 			return False
-# 	else:
-# 		bot.botdo("raw", "names " + chan)
-# 		return False
-
 if nickHgl and not fromOwner and not auth(uperms, plName, msg["cmd"]):
 	caperms = self.permM.getPermsOfGroup("#chanadmin")
 
@@ -48,7 +38,7 @@ if nickHgl and not fromOwner and not auth(uperms, plName, msg["cmd"]):
 				self.handleError("syntax")
 			elif len(args) == 1:
 				if isAdminOfChan(msg["nick"], msg["args"], bot, line):
-					bot.botdo("join", msg["args"])
+					bot.join(msg["args"])
 					self.feedback("success")
 			else:
 				self.handleError("syntax")
@@ -62,7 +52,7 @@ if nickHgl and not fromOwner and not auth(uperms, plName, msg["cmd"]):
 				else:
 					chan = msg["args"]
 				if isAdminOfChan(msg["nick"], chan, bot, line):
-					bot.botdo("part", chan)
+					bot.part(chan)
 					self.feedback("success")
 
 

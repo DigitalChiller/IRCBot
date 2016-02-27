@@ -27,8 +27,6 @@
 ## Functions
 # self.feedback(msg)
 #  use this to send responses
-# bot.botdo(action, *args, **kwargs)
-#  use this to tell the bot to do something
 # auth(perms, plName, command/permission*)
 #  use this to test if a user is authed to execute a command
 # isAdminOfChan(user, chan, bot, line, sendDelay)
@@ -36,10 +34,6 @@
 
 if nickHgl and msg["cmdPref"] == ",":
 	if fromOwner or auth(uperms, plName, msg["cmd"]):
-		if msg["cmd"] == "reconnect":
-			self.feedback("bye, I'm failing")
-			bot.botdo("reconnect")
-
 		if msg["cmd"] == "togglePingPong":
 			bot.logPingPong = not bot.logPingPong
 			self.feedback("logPingPong: " + str(bot.logPingPong))
@@ -58,5 +52,5 @@ if nickHgl and msg["cmdPref"] == ",":
 			self.feedback("'" + "', '".join(fb) + "'")
 
 		elif msg["cmd"] == "do3":
-			bot.botdo("raw", "names #digital")
+			bot.sendraw("names #digital")
 			self.feedback("do3")

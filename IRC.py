@@ -782,15 +782,6 @@ class IRCBot(threading.Thread):
 		if self.connected and target:
 			self.privmsg(target, tb.splitlines()[-1])
 
-	def botdo(self, action, *args, **kwargs):
-		retvar = True
-		try:
-			with open("botdo.py") as f:
-				exec(f.read(), globals(), locals())
-		except:
-			error()
-			return retvar
-
 	def sendowner(self, msg):
 		self.notice(self.config["owner"].split("!")[0], msg)
 
