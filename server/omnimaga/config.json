@@ -1,24 +1,15 @@
 {
-    "ident": "DigitalBOT",
-    "port": 6697,
-    "realname": "trains ftw",
-    "firstMsg": "PING :",
-    "nick": [
-        "nBot",
-        "Spike",
-        "Arthur"
-    ],
-    "quitMsg": "cya all",
-    "channel": [
-        "_#spam",
-        "#thebot",
-        "Digital"
-    ],
-    "ssl": "true",
     "network": "muffin.irc.omnimaga.org",
+    "port": 6697,
+    "ssl": "true",
     "localhost": "false",
-    "owner": "digital!digital@d1g1t4l.be",
+    "nickserv": "nbot",
     "quotepass": "",
+    "greetMsg": "hello",
+    "quitMsg": "cya all",
+    "owner": "digital!digital@d1g1t4l.be",
+    "realname": "trains ftw",
+    "ident": "DigitalBOT",
     "plugins": {
         "server": [
             "serverMsgHandler"
@@ -28,13 +19,21 @@
             "plugins",
             "permission",
             "admin",
-            "chanadmin"
+            "chanadmin",
+            "help"
         ]
     },
+    "channel": [
+        "_#spam",
+        "#thebot",
+        "Digital"
+    ],
     "modes": [
         "+B",
         "+x"
     ],
-    "greetMsg": "hello",
-    "nickserv": "nbot"
+    "nick": [
+        "nBot",
+        "DigitalBOT"
+    ]
 }

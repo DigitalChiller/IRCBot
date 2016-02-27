@@ -31,15 +31,16 @@ import chardet
 import random
 import threading
 import queue
-import pprint
+#import pprint
 import sys
 import os
 import signal
 import ssl
 import copy
 import curses
-import curses.textpad
+#import curses.textpad
 import json
+from collections import OrderedDict
 import Echo 	#look at Echo.py
 
 def randStr(length):
@@ -65,7 +66,7 @@ class Config():
 	def read(self):
 		with open(self.filePath) as f:
 			lines = f.readlines()
-			self.data = json.loads("\n".join(lines))
+			self.data = json.loads("\n".join(lines), object_pairs_hook=OrderedDict)
 		return self.data
 
 	def save(self):
@@ -261,9 +262,10 @@ class PluginHandler(threading.Thread):
 		self.pluginDir = pluginDir
 		self._plugins = {}
 		self._modifiers = {}
-
+		self.help = {}
+		self._usercmds = []
 		self.plVars = {}
-		self.lastTarget = ""
+
 
 		self.q = queue.Queue()
 		self._stopnow = False
@@ -277,7 +279,7 @@ class PluginHandler(threading.Thread):
 
 			lvars = self.q.get()
 
-			self.lastTarget = lvars["msg"]["target"]
+			self.lastMsg = lvars["msg"]
 			lvars["self"] = self
 			lvars["bot"] = self.bot
 
@@ -298,14 +300,14 @@ class PluginHandler(threading.Thread):
 		self._stopnow = True
 
 	def feedback(self, msg):
-		if self.lastTarget != "":
-			self.bot.privmsg(self.lastTarget, msg)
+		if self.lastMsg["target"] != "":
+			self.bot.privmsg(self.lastMsg["target"], msg)
 		else:
-			echo("target unknown, couldn't send '" + line + "'")
+			echo("target unknown, couldn't send '" + msg + "'")
 
 	def handleError(self, error, *args, fb=True):
 		if error == "syntax":
-			self.feedback("invalid syntax: " + " ".join(args))
+			self.feedback("invalid Syntax, correct syntax of '" + self.lastMsg["cmd"] + "' is: '" + self.help.get(self.lastMsg["cmd"], {"syntax":"no syntax specified"})[0]+"'")
 
 		elif error == "unknown":
 			self.feedback("Unknown error: something unexpected happend")
@@ -335,7 +337,6 @@ class PluginHandler(threading.Thread):
 			self.plVars[plName].name = plName
 			self.plVars[plName].dataDir = dataDir
 			self.plVars[plName].info = "no information specified"
-			self.plVars[plName].help = {}
 
 			lvars = {}
 			lvars["pv"] = self.plVars[plName]
@@ -346,9 +347,12 @@ class PluginHandler(threading.Thread):
 			with open(pldir + "__init__.py") as f:
 				exec(f.read(), globals(), lvars)
 
-			if "help.py" in plFiles:				
-				with open(pldir + "help.py") as f:
-					exec(f.read(), globals(), lvars)
+			if "help.json" in plFiles:				
+				with open(pldir + "help.json") as f:
+					temp = json.loads(f.read(), object_pairs_hook=OrderedDict)
+				self.help.update(temp["syntax"])
+				self._usercmds.extend(temp["user"])
+					#exec(f.read(), globals(), lvars)
 
 			echo("added plugin " + plName)
 
@@ -361,12 +365,23 @@ class PluginHandler(threading.Thread):
 	def remPlugin(self, plName):
 		try:
 			pldir = self.pluginDir + plName + "/"
+			plFiles = os.listdir(pldir)
 
 			if pldir + "plugin.py" in self._plugins:
-				self._modifiers.remove(pldir + "plugin.py")			
+				del self._plugins[pldir + "plugin.py"]
 
 			if pldir + "modifier.py" in self._modifiers:
-				self._modifiers.remove(pldir + "modifier.py")
+				del self._modifiers[pldir + "modifier.py"]
+
+			if "help.json" in plFiles:				
+				with open(pldir + "help.json") as f:
+					temp = update(json.loads(f.read(), object_pairs_hook=OrderedDict))
+
+				for c in temp["user"]:
+					if c in self._usercmds:
+						self._usercmds.remove(usercmds)
+				for c in temp["syntax"]:
+					del self.help[c]
 
 		except:
 			echo(traceback.format_exc(), "warn")
@@ -383,11 +398,13 @@ class PluginHandler(threading.Thread):
 	def reloadHelp(self, plName):
 		try:
 			pldir = self.pluginDir + plName + "/"
-			self.plVars[plName].help = {}
-			lvars = locals()
-			lvars["pv"] = self.plVars[plName]
-			with open(pldir + "help.py") as f:
-				exec(f.read(), globals(), lvars)
+			plFiles = os.listdir(pldir)
+
+			if "help.json" in plFiles:				
+				with open(pldir + "help.json") as f:
+					temp = json.loads(f.read(), object_pairs_hook=OrderedDict)
+				self.help.update(temp["syntax"])
+				self._usercmds.extend(temp["user"])
 
 			return True
 		except:

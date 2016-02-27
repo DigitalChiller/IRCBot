@@ -16,15 +16,10 @@
 #
 
 def sendSyntax(self, cmd):
-	for p in self.lsPlugins():
-		helptext = self.plVars[p].help.get(cmd, None)
-		if helptext != None:
-			break
-	if helptext == None:
-		helptext = ["no help aviable, report this"]
+	if cmd in self.help:
+		for l in self.help[cmd]:
+			self.feedback(l)
+		return True
+	else:
+		self.feedback("no help aviable, report this")
 		return False
-
-	for l in helptext:
-		self.feedback(l)
-
-	return True

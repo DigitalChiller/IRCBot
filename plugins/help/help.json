@@ -1,0 +1,16 @@
+{
+	"user": ["help"],
+	"syntax": {
+		"help": [
+			"?help <command>",
+			"shows informations about command",
+			"*ALL*!!"
+		],
+		"reloadHelp": [
+			",reloadHelp <plugin>",
+			"refreshes the help from the plugins help file",
+			"*ALL*!!"
+		]
+	},
+	"info": {}
+}

@@ -19,22 +19,18 @@ if nickHgl and msg["cmdPref"] in [",","?"]:
 	if msg["cmd"] == "help":
 		if len(args) == 0:
 			self.feedback("Hello, I'm nBot!")
-			self.feedback("valid help arguments are:")
-			self.feedback("'bot' for detailed information about me")
-			self.feedback("'cmd <command>' for information about a command")
-			self.feedback("'pl <plugin>' for information about a plugin")
-			self.feedback("here is a list of commands:")
-			self.feedback("*totally legit list*") #self.usercmd
+			self.feedback("Syntax: " + self.help["help"][0])
+			self.feedback("all user commands:")
+			self.feedback("'"+"', '".join(self._usercmds)+"'") #self.usercmd
 
 		else:
 			sendSyntax(self, msg["args"])
 	elif fromOwner or auth(uperms, plName, msg["cmd"]):
-		if len(args) == 1:
-			if msg["cmd"] == "reloadHelp":
+		if msg["cmd"] == "reloadHelp":
+			if len(args) == 1:
 				if self.reloadHelp(args[0]):
 					self.feedback("success")
 				else:
 					self.feedback("fail")
-		else:
-			self.handleError("syntax")
-
+			else:
+				self.handleError("syntax")
