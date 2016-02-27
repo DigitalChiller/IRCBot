@@ -43,7 +43,9 @@ if nickHgl and msg["cmdPref"] == ",":
 
 		elif msg["cmd"] == "do1":
 			self.feedback("buh")
-			
+			bot.shutdown("restart")
+			#bot._stopnow = True
+
 		elif msg["cmd"] == "do2":
 			threads = threading.enumerate()
 			fb = []

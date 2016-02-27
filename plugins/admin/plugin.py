@@ -33,7 +33,7 @@ if nickHgl:
 	if fromOwner or auth(uperms, plName, msg["cmd"]):
 		if msg["cmd"] == "join":
 			if len(args) == 1:
-				bot.join(msg["args"])
+				bot.joinChan(msg["args"])
 			else:
 				self.handleError("syntax")
 

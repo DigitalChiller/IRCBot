@@ -38,7 +38,7 @@ if nickHgl and not fromOwner and not auth(uperms, plName, msg["cmd"]):
 				self.handleError("syntax")
 			elif len(args) == 1:
 				if isAdminOfChan(msg["nick"], msg["args"], bot, line):
-					bot.join(msg["args"])
+					bot.joinChan(msg["args"])
 					self.feedback("success")
 			else:
 				self.handleError("syntax")
