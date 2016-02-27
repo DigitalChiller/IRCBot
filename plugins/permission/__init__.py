@@ -17,6 +17,6 @@
 
 
 try:
-	self.permM = PermissionManager([])
+	self.permM = PermissionManager(configDir=pv.dataDir, default=[])
 except:
-	self.handleError()
+	error()

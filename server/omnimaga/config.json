@@ -16,6 +16,7 @@
     ],
     "ssl": "true",
     "network": "muffin.irc.omnimaga.org",
+    "localhost": "false",
     "owner": "digital!digital@d1g1t4l.be",
     "quotepass": "",
     "plugins": {
@@ -30,7 +31,6 @@
             "chanadmin"
         ]
     },
-    "ipconnect": "muffin.irc.omnimaga.org",
     "modes": [
         "+B",
         "+x"

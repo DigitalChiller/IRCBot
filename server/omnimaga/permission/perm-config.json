@@ -3,20 +3,20 @@
         "invite": [
             "admin.invite"
         ],
-        "#chanadmin": [
-            "chanadmin.join",
-            "chanadmin.part"
-        ],
-        "user": [],
         "admin": [
             "admin.*"
         ],
+        "dev": [
+            "dev.*"
+        ],
+        "user": [],
         "move": [
             "admin.part",
             "admin.join"
         ],
-        "dev": [
-            "dev.*"
+        "#chanadmin": [
+            "chanadmin.join",
+            "chanadmin.part"
         ]
     },
     "users": {}

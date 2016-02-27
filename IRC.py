@@ -74,140 +74,6 @@ class Config():
 
 
 
-class PluginHandler(threading.Thread):
-	"""docstring for ExtensionHandler"""
-
-	def __init__(self, bot, *, pluginDir="plugins/", name="plHandler"):
-		super(PluginHandler, self).__init__()
-		self.name = name
-		self.bot = bot
-		self.pluginDir = pluginDir
-		self._plugins = {}
-		self._modifiers = {}
-
-		self.plVars = {}
-		self.lastTarget = ""
-
-		self.q = queue.Queue()
-		self._stopnow = False
-
-	def run(self):
-		while not self._stopnow:
-			while self.q.empty():
-				if self._stopnow:
-					return
-				time.sleep(0.01)
-
-			lvars = self.q.get()
-
-			self.lastTarget = lvars["msg"]["target"]
-			lvars["self"] = self
-			lvars["bot"] = self.bot
-
-			for l in [self._modifiers, self._plugins]:
-				for i in l.copy():
-					try:
-						lvars["plName"] = i.split("/")[-2]
-						lvars["pv"] = self.plVars[lvars["plName"]]
-
-						with open(i) as f:
-							exec(f.read(), globals(), lvars)
-					except:
-						error(info=i)
-
-			self.q.task_done()
-	
-	def stop(self):
-		self._stopnow = True
-
-	def feedback(self, msg):
-		if self.lastTarget != "":
-			self.bot.privmsg(self.lastTarget, msg)
-		else:
-			echo("target unknown, couldn't send '" + line + "'")
-
-	def handleError(self, error, *args, fb=True):
-		if error == "syntax":
-			self.feedback("invalid syntax: " + " ".join(args))
-
-		elif error == "unknown":
-			self.feedback("Unknown error: something unexpected happend")
-
-		else:
-			self.feedback(error + ": " + " : ".join(args))
-
-
-	def addPlugin(self, plName):
-		try:
-			pldir = self.pluginDir + plName
-			files = os.listdir(pldir)
-
-			if "plugin.py" in files:
-				self._plugins[pldir + "/plugin.py"] = {} 
-			if "modifier.py" in files:
-				self._modifiers[pldir + "/modifier.py"] = {}
-
-			self.plVars[plName] = VariableBundle()
-			self.plVars[plName].name = plName
-			self.plVars[plName].info = "no information specified"
-			self.plVars[plName].help = {}
-
-			lvars = locals()
-			lvars["pv"] = self.plVars[plName]
-
-			with open(pldir + "/__init__.py") as f:
-				exec(f.read(), globals(), lvars)
-
-			if "help.py" in files:				
-				with open(pldir + "/help.py") as f:
-					exec(f.read(), globals(), lvars)
-
-			echo("added plugin " + plName)
-
-		except:
-			error(info=plName)
-#			echo(traceback.format_exc(), "warn")
-			return False
-		else:
-			return True
-
-	def remPlugin(self, plName):
-		try:
-			pldir = self.pluginDir + plName
-
-			if pldir + "/plugin.py" in self._plugins:
-				self._modifiers.remove(pldir + "/plugin.py")			
-
-			if pldir + "/modifier.py" in self._modifiers:
-				self._modifiers.remove(pldir + "/modifier.py")
-
-		except:
-			echo(traceback.format_exc(), "warn")
-			return False
-		else:
-			return True
-
-	def lsPlugins(self):
-		temp = []
-		for p in self._plugins:
-			temp.append(p.split("/")[-2])
-		return temp
-
-	def reloadHelp(self, plName):
-		try:
-			pldir = self.pluginDir + plName
-			self.plVars[plName].help = {}
-			lvars = locals()
-			lvars["pv"] = self.plVars[plName]
-			with open(pldir + "/help.py") as f:
-				exec(f.read(), globals(), lvars)
-
-			return True
-		except:
-			error()
-			return False
-
-
 class SocketHandler(threading.Thread):
 	"""docstring for SocketHandler"""
 	def __init__(self, address, port, buffersize, encoding, is_ssl=False, name="sHandler"):
@@ -263,15 +129,16 @@ class SocketHandler(threading.Thread):
 
 class PermissionManager(object):
 	"""docstring for PermissionManager"""
-	def __init__(self, default=None):
+	def __init__(self, configDir, default=None):
 		super(PermissionManager, self).__init__()
 		self.default = default
+		self.configDir = configDir
 
 		self._groups = {} #group:{perms}
 		self._users = {} #user:{groups}
 		self._perms = {} #user:{perms} #don't edit, will be updated automatically
 
-		self._configFile = Config("perm-config.json")
+		self._configFile = Config(self.configDir+"perm-config.json")
 		
 		self.readConf()
 
@@ -382,6 +249,153 @@ class PermissionManager(object):
 		return self.getPermsOfUser(user)
 
 
+
+class PluginHandler(threading.Thread):
+	"""docstring for ExtensionHandler"""
+
+	def __init__(self, dataDir, bot, *, pluginDir="plugins/", name="plHandler"):
+		super(PluginHandler, self).__init__()
+		self.name = name
+		self.bot = bot
+		self.dataDir = dataDir
+		self.pluginDir = pluginDir
+		self._plugins = {}
+		self._modifiers = {}
+
+		self.plVars = {}
+		self.lastTarget = ""
+
+		self.q = queue.Queue()
+		self._stopnow = False
+
+	def run(self):
+		while not self._stopnow:
+			while self.q.empty():
+				if self._stopnow:
+					return
+				time.sleep(0.01)
+
+			lvars = self.q.get()
+
+			self.lastTarget = lvars["msg"]["target"]
+			lvars["self"] = self
+			lvars["bot"] = self.bot
+
+			for l in [self._modifiers, self._plugins]:
+				for i in l.copy():
+					try:
+						lvars["plName"] = i.split("/")[-2]
+						lvars["pv"] = self.plVars[lvars["plName"]]
+
+						with open(i) as f:
+							exec(f.read(), globals(), lvars)
+					except:
+						error(info=i)
+
+			self.q.task_done()
+	
+	def stop(self):
+		self._stopnow = True
+
+	def feedback(self, msg):
+		if self.lastTarget != "":
+			self.bot.privmsg(self.lastTarget, msg)
+		else:
+			echo("target unknown, couldn't send '" + line + "'")
+
+	def handleError(self, error, *args, fb=True):
+		if error == "syntax":
+			self.feedback("invalid syntax: " + " ".join(args))
+
+		elif error == "unknown":
+			self.feedback("Unknown error: something unexpected happend")
+
+		else:
+			self.feedback(error + ": " + " ; ".join(args))
+
+
+	def addPlugin(self, plName):
+		try:
+			pldir = self.pluginDir + plName + "/"
+			dataDir = self.dataDir + plName + "/"
+			plFiles = os.listdir(pldir)
+			try:
+				dFiles = os.listdir(dataDir)
+			except FileNotFoundError:
+				os.makedirs(dataDir)
+			except Exception as e:
+				raise e
+
+			if "plugin.py" in plFiles:
+				self._plugins[pldir + "plugin.py"] = {} 
+			if "modifier.py" in plFiles:
+				self._modifiers[pldir + "modifier.py"] = {}
+
+			self.plVars[plName] = VariableBundle()
+			self.plVars[plName].name = plName
+			self.plVars[plName].dataDir = dataDir
+			self.plVars[plName].info = "no information specified"
+			self.plVars[plName].help = {}
+
+			lvars = {}
+			lvars["pv"] = self.plVars[plName]
+			lvars["self"] = self
+			lvars["bot"] = self.bot
+
+
+			with open(pldir + "__init__.py") as f:
+				exec(f.read(), globals(), lvars)
+
+			if "help.py" in plFiles:				
+				with open(pldir + "help.py") as f:
+					exec(f.read(), globals(), lvars)
+
+			echo("added plugin " + plName)
+
+		except:
+			error(info=plName)
+			return False
+		else:
+			return True
+
+	def remPlugin(self, plName):
+		try:
+			pldir = self.pluginDir + plName + "/"
+
+			if pldir + "plugin.py" in self._plugins:
+				self._modifiers.remove(pldir + "plugin.py")			
+
+			if pldir + "modifier.py" in self._modifiers:
+				self._modifiers.remove(pldir + "modifier.py")
+
+		except:
+			echo(traceback.format_exc(), "warn")
+			return False
+		else:
+			return True
+
+	def lsPlugins(self):
+		temp = []
+		for p in self._plugins:
+			temp.append(p.split("/")[-2])
+		return temp
+
+	def reloadHelp(self, plName):
+		try:
+			pldir = self.pluginDir + plName + "/"
+			self.plVars[plName].help = {}
+			lvars = locals()
+			lvars["pv"] = self.plVars[plName]
+			with open(pldir + "help.py") as f:
+				exec(f.read(), globals(), lvars)
+
+			return True
+		except:
+			error()
+			return False
+
+
+
 class IRCBot(threading.Thread):
 	"""docstring for IRCServer"""
 	def __init__(self, name, dojoin = True, *, doMsgHandle = True, buffer = 4096, encoding = 'UTF-8'):
@@ -392,7 +406,7 @@ class IRCBot(threading.Thread):
 		global echo
 
 		SCREEN = Echo.start() 
-		LogOutp = Echo.ScrollText(scrollback = 200, posy = 0, posx = 0, height= 24, width = 80, logFile = name + "-logs.txt")
+		LogOutp = Echo.ScrollText(scrollback = 200, posy = 0, posx = 0, height= 24, width = 80, logFile = "server/" + name + "/logs.txt")
 		echo = LogOutp.echo
 
 
@@ -412,9 +426,9 @@ class IRCBot(threading.Thread):
 
 		# Bot name, not irc nick!
 		self.serverName = name #the name (folder) of the server/bot, each must be unique
-		os.chdir(self.serverName)
+		#os.chdir(self.serverName)
 		# path to the Bot directory
-		#self.botDir = name + "/"
+		self.botDir = "server/" + name + "/"
 
 		# buffer size
 		self.buffer = buffer
@@ -471,11 +485,11 @@ class IRCBot(threading.Thread):
 
 		### FILES
 		# config file, holds general data about the bot and the connection
-		self.configFile = Config("config.json")
+		self.configFile = Config(self.botDir + "config.json")
 		self.config = self.configFile.data
 		
 		# passwords
-		self.__pswFile = Config("../pw.json").data		#the password file where all passwords are stored, i seperated them for easier code sharing :)
+		self.__pswFile = Config("pw.json").data		#the password file where all passwords are stored, i seperated them for easier code sharing :)
 
 		### IRC Client Information
 		# current irc nick name of the bot
@@ -486,7 +500,9 @@ class IRCBot(threading.Thread):
 		self.identity = self.config["ident"]		#bot's identity
 		# realname
 		self.realname = self.config["realname"]		#bot's realname
-		# network address, that is not where the bot connects to, usefull when connecting to localhost
+		# use localhost instead of network
+		self.localhost = str(self.config["localhost"]).lower() == "true"
+		# network address, that is not where the bot connects to
 		self.network = self.config["network"]
 		# port
 		self.port = int(self.config["port"])		#the port the bot connects to
@@ -525,13 +541,18 @@ class IRCBot(threading.Thread):
 		# Handler
 		self.handler = []
 
-		self.plH_user = PluginHandler(bot=self)
+		self.plH_user = PluginHandler(dataDir=self.botDir, bot=self)
 		self.handler.append(self.plH_user)
 
-		self.plH_server = PluginHandler(bot=self)
+		self.plH_server = PluginHandler(dataDir=self.botDir, bot=self)
 		self.handler.append(self.plH_server)
 
-		self.sH_irc = SocketHandler(self.config["ipconnect"], self.port, self.buffer, self.encoding, self.ssl)
+		if self.localhost:
+			temp = "127.0.0.1" #not working
+		else:
+			temp = self.config["network"]
+
+		self.sH_irc = SocketHandler(temp, self.port, self.buffer, self.encoding, self.ssl)
 		self.handler.append(self.sH_irc)
 		
 		
@@ -597,8 +618,8 @@ class IRCBot(threading.Thread):
 					self.thread_connect = threading.Thread(None, self.connect, "connect")
 					self.failed = False
 
-					echo("waiting 4.2 seconds")
-					time.sleep(4.2)
+					echo("waiting 21 seconds")
+					time.sleep(21)
 					
 					echo("reconnecting NOW")
 					self.thread_connect.start()
