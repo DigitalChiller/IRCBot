@@ -19,12 +19,13 @@ if nickHgl and msg["cmdPref"] in [",","?"]:
 	if msg["cmd"] == "help":
 		if len(args) == 0:
 			self.feedback("Hello, I'm nBot!")
-			self.feedback("Syntax: " + self.help["help"][0])
+			self.feedback("Syntax: " + italic(self.help["help"][0]))
 			self.feedback("all user commands:")
 			self.feedback("'"+"', '".join(self._usercmds)+"'") #self.usercmd
 
 		else:
 			sendSyntax(self, msg["args"])
+			
 	elif fromOwner or auth(uperms, plName, msg["cmd"]):
 		if msg["cmd"] == "reloadHelp":
 			if len(args) == 1:

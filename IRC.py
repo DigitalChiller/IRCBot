@@ -49,6 +49,47 @@ def randStr(length):
 			temp = temp + random.choice('abcdefghijklmnopqrstuvwxyz')
 		return temp	
 
+def bold(msg):
+	return "\x02" + str(msg) + "\x02"
+
+def color(msg):
+	return "\x03" + str(msg) + "\x03"
+
+def italic(msg):
+	return "\x1D" + str(msg) + "\x1D"
+
+def underline(msg):
+	return "\x1F" + str(msg) + "\x1F"
+
+def swapFB(msg):
+	return "\x16" + str(msg) + "\x16"
+
+reset = "\x0F"
+
+colors = {
+	"white": "00",
+	"black": "01",
+	"blue": "02",
+	"green": "03",
+	"red": "04",
+	"brown": "05",
+	"purple": "06",
+	"orange": "07",
+	"yellow": "08",
+	"lightgreen": "09",
+	"cyan": "10",
+	"lightcyan": "11",
+	"lightblue": "12",
+	"pink": "13",
+	"grey": "14",
+	"lightgrey": "15"
+}
+
+def colored(msg, fg="default", bg="default"):
+	return color(colors.get(fg,"99") + "," + colors.get(bg,"99") + str(msg))
+
+
+
 class VariableBundle(object):
 	"""use this for variable managing"""
 	pass
@@ -307,13 +348,13 @@ class PluginHandler(threading.Thread):
 
 	def handleError(self, error, *args, fb=True):
 		if error == "syntax":
-			self.feedback("invalid Syntax, correct syntax of '" + self.lastMsg["cmd"] + "' is: '" + self.help.get(self.lastMsg["cmd"], {"syntax":"no syntax specified"})[0]+"'")
+			self.feedback(bold("Invalid Syntax") + ": correct syntax of '" + italic(self.lastMsg["cmd"]) + "' is: '" + italic(self.help.get(self.lastMsg["cmd"], {"syntax":"no syntax specified"})[0])+"'")
 
 		elif error == "unknown":
-			self.feedback("Unknown error: something unexpected happend")
+			self.feedback(bold("Unknown Error") + ": something unexpected happend")
 
 		else:
-			self.feedback(error + ": " + " ; ".join(args))
+			self.feedback(bold(error) + ": " + " ; ".join(args))
 
 
 	def addPlugin(self, plName):
@@ -795,9 +836,14 @@ class IRCBot(threading.Thread):
 		tb = traceback.format_exc()
 		echo(tb, "warn")
 		echo("info:" + info, "warn")
-		self.sendowner(tb.splitlines()[-1])
-		if self.connected and target:
-			self.privmsg(target, tb.splitlines()[-1])
+
+		temp = tb.splitlines()[-1].split()
+		errinfo = colored(bold(temp[1], "red") + " " + " ".join(temp[1:])
+
+		if self.connected:
+			self.sendowner(errinfo)
+			if target:
+				self.privmsg(target, errinfo)
 
 	def sendowner(self, msg):
 		self.notice(self.config["owner"].split("!")[0], msg)
@@ -812,29 +858,26 @@ class IRCBot(threading.Thread):
 
 		nickServ = self.config["nickserv"] != ""
 		quotePass = self.config["quotepass"] != ""
-		firstMsg = self.config["firstMsg"]
 		self.nick = self.oldNick = None
 
 		self.sH_irc.start()
 		time.sleep(0.42)
 
 		self.changeNick(self.config['nick'][0])
-		#self.changeNick(randStr(10))
-		self.sendRaw("USER %s %s %s %s\r\n" % ("nBot","youwishyoudknow",self.serverName, self.realname))
-		# self.waitFor(firstMsg, timeout = 5)
 
-		i = 1
+		self.sendRaw("USER %s %s %s %s\r\n" % ("nBot","youwishyoudknow",self.serverName, self.realname))
+
+		i = 0
 		while not self._stopnow:
 			wait = self.waitFor("001", 2.1)
 			if type(wait)is float:
+				i += 1
 				if i < len(self.config["nick"]):
-					self.changeNick(self.config["nick"][i])
-					i += 1
+					nick = self.config["nick"][i]
+					self.changeNick(nick)
 				else:
-					echo("all nicks taken", "warn")
-					self._restart = False
-					self._stopnow = True
-					return
+					nick += "_"
+					self.changeNick(nick)
 			else:
 				break
 

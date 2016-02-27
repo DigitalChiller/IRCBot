@@ -17,7 +17,8 @@
 
 def sendSyntax(self, cmd):
 	if cmd in self.help:
-		for l in self.help[cmd]:
+		self.feedback("Syntax: '" + self.help[cmd][0] + "'")
+		for l in self.help[cmd][1:]:
 			self.feedback(l)
 		return True
 	else:

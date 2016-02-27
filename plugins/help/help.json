@@ -2,14 +2,12 @@
 	"user": ["help"],
 	"syntax": {
 		"help": [
-			"?help <command>",
-			"shows informations about command",
-			"*ALL*!!"
+			"?help \u001D<command>\u001D",
+			"shows information about command"
 		],
 		"reloadHelp": [
-			",reloadHelp <plugin>",
-			"refreshes the help from the plugins help file",
-			"*ALL*!!"
+			",reloadHelp \u001D<plugin>\u001D",
+			"refreshes the help texts from the plugins help file"
 		]
 	},
 	"info": {}

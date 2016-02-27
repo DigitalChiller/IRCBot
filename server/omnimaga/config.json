@@ -10,6 +10,19 @@
     "owner": "digital!digital@d1g1t4l.be",
     "realname": "trains ftw",
     "ident": "DigitalBOT",
+    "nick": [
+        "nBot",
+        "Spike"
+    ],
+    "channel": [
+        "_#spam",
+        "#thebot",
+        "Digital"
+    ],
+    "modes": [
+        "+B",
+        "+x"
+    ],
     "plugins": {
         "server": [
             "serverMsgHandler"
@@ -22,18 +35,5 @@
             "chanadmin",
             "help"
         ]
-    },
-    "channel": [
-        "_#spam",
-        "#thebot",
-        "Digital"
-    ],
-    "modes": [
-        "+B",
-        "+x"
-    ],
-    "nick": [
-        "nBot",
-        "DigitalBOT"
-    ]
+    }
 }
