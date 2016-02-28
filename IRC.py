@@ -870,7 +870,7 @@ class IRCBot(threading.Thread):
 			if self._stopnow:
 				return
 			if type(wait)is float:
-				if i >= 1:
+				if i >= 5:
 					if not self.failed:
 						self.failinfo.insert(0, {"type":"NickError", "time":time.time(), "action":"restart"})
 						self.failed = True
