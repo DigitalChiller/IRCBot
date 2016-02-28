@@ -448,7 +448,6 @@ class PluginHandler(threading.Thread):
 		return temp
 
 	def reloadHelp(self, plName):
-		for 
 		try:
 			pldir = self.pluginDir + plName + "/"
 			plFiles = os.listdir(pldir)
