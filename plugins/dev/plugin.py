@@ -39,7 +39,7 @@ if nickHgl and msg["cmdPref"] == ",":
 			self.feedback("logPingPong: " + str(bot.logPingPong))
 
 		elif msg["cmd"] == "do0":
-			self.feedback(colored(bold("Test:test"), "red")+italic("test"))
+			self.feedback("'\x00'")
 
 		elif msg["cmd"] == "do1":
 			self.feedback("buh")

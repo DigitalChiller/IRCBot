@@ -140,28 +140,27 @@ class SocketHandler(threading.Thread):
 	def run(self):
 		try:
 			self.s.connect((self.address,self.port)) #connect to the server
+			self.connected = True
 		except:
 			error(info="connecting socket to server", fail=True)
-		self.connected = True
 
 		while not self._stopnow:
-			try:				#trying to decode the message
-				stuff = self.s.recv(self.buffersize)
-				stuff = stuff.decode(self.encoding)
+			try:
+				recvMsg = self.s.recv(self.buffersize)
+				msg = recvMsg.decode(self.encoding)
 			except:
-				if stuff != '':
+				error()
+				if msg != "\x00":
 					try:
-						stuff = stuff.decode(chardet.detect(stuff)['encoding'])
+						msg = recvMsg.decode(chardet.detect(recvMsg)['encoding'])
 					except Exception as e:
-						echo(e)
 						error(info="socketHandler")
-#							echo(traceback.format_exc(), "warn")
 						self.failed = True
 						self.failinfo = {"type":type(e).__name__, "time":time.time()}
 						self.stop()
 						return
 
-			for line in stuff.replace("\r","").split("\n"):		#split received messages by new lines and put them into self.lines
+			for line in msg.replace("\r","").split("\r\n"):		#split received messages by new lines and put them into self.lines
 				self.q.put(line)
 
 	def stop(self):
@@ -449,6 +448,7 @@ class PluginHandler(threading.Thread):
 		return temp
 
 	def reloadHelp(self, plName):
+		for 
 		try:
 			pldir = self.pluginDir + plName + "/"
 			plFiles = os.listdir(pldir)
