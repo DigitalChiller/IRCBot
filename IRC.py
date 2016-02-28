@@ -1012,7 +1012,7 @@ class IRCBot(threading.Thread):
 #		self.shutdown("stop", reason = "manual shutdown", downTime = 1, delay = 1)
 		
 	def handle_resize(self, *args):
-		w,h = self.getTerminalSize_linux()
+		w,h = os.get_terminal_size()
 		LogOutp.win.resize(h,w)
 		SCREEN.resize(h,w)
 		curses.resizeterm(h,w)
@@ -1100,38 +1100,6 @@ class IRCBot(threading.Thread):
 			self._exit = True
 			print("bye from shutdown because " + str(reason))
 			return
-
-	def exit(self, *, reason = "bye", restart = None, **kwargs):
-		if restart != None:
-			self._restart = str(restart).lower() == "true"
-
-		self._stopnow = True
-		self.connected = False
-		time.sleep(0.5)
-		self.sH_irc.s.close()
-
-	def getTerminalSize_linux(self):	#I copied this from: http://stackoverflow.com/questions/566746/how-to-get-console-window-width-in-python
-		def ioctl_GWINSZ(fd):
-			try:
-				import fcntl, termios, struct, os
-				cr = struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ,'1234'))
-			except:
-				return None
-			return cr
-		cr = ioctl_GWINSZ(0) or ioctl_GWINSZ(1) or ioctl_GWINSZ(2)
-		if not cr:
-			try:
-				fd = os.open(os.ctermid(), os.O_RDONLY)
-				cr = ioctl_GWINSZ(fd)
-				os.close(fd)
-			except:
-				pass
-		if not cr:
-			try:
-				cr = (env['LINES'], env['COLUMNS'])
-			except:
-				return None
-		return int(cr[1]), int(cr[0])
 
 if __name__ == "__main__" and False:
 	exec(open("omnimaga/extensions/echo.py").read(), globals(), locals())
