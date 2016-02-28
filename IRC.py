@@ -661,14 +661,15 @@ class IRCBot(threading.Thread):
 		self.plH_user.start()
 		self.plH_server.start()
 		#self.thread_consInp.start()
-		while self.is_up():
+		while self.status != "stopped":
 			try:
 #				echo(type(self.failinfo))
 
 				if self.debug_break:
 					self.debug_break = False
 					raise I_like_trains
-				if self.is_up():
+
+				if not self.status in ["disconnected", "stopped", "stopping"]:
 					try:
 						if self.sH_irc.failed:
 							self.failed = True
@@ -699,7 +700,7 @@ class IRCBot(threading.Thread):
 						print(self.failinfo[0])
 						print("\r\n")
 						echo(self.failinfo[0]["type"], "warn")
-						self.shutdown("stop", "Unknown Error: " + self.failinfo[0]["type"])
+						self.shutdown("stop", "Unknown Error: " + self.failinfo[0]["type"], 0, 0)
 
 				time.sleep(0.01)
 
@@ -714,7 +715,7 @@ class IRCBot(threading.Thread):
 		# 	else:
 		# 		time.sleep(1)
 
-		print("forced bye from run")
+		print("bye from run")
 		return
 				 
 	def detectTimeout(self):
