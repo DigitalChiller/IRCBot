@@ -1,0 +1,30 @@
+{
+	"user": [],
+	"syntax": {
+		"join": [
+			",join \u001D<channel>\u001D",
+			"joins channel"
+		],
+		"part": [
+			",part \u001D<channel>\u001D",
+			"parts channel"
+		],
+		"nick": [
+			",nick \u001D<channel>\u001D",
+			"parts channel"
+		],
+		"privmsg": [
+			",privmsg \u001D<channel>\u001D \u001D<message>\u001D",
+			"privmsgs message to channel"
+		],
+		"sendRaw": [
+			",sendRaw \u001D<line>\u001D",
+			"sends line to the server"
+		],
+		"refreshConfig": [
+			",refreshConfig",
+			"refreshes the bot's main config"
+		]
+	},
+	"info": {}
+}

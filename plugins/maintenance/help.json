@@ -1,0 +1,21 @@
+{
+	"user": [],
+	"syntax": {
+		"stopBot": [
+			",stopBot \u001D<arg>\u001D",
+			"stops the bot"
+		],
+		"restartBot": [
+			",restartBot",
+			"restarts the bot"
+		],
+		"updateBot": [
+			",updateBot",
+			"updates the bot and restarts it afterwards"
+		],
+		"reconnectBot": [
+			",reconnectBot",
+			"reconnects the Bot"
+		]
+	}
+}

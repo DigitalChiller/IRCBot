@@ -29,24 +29,25 @@ else:
 	joinChansOnStart = True
 
 restart = True
+
 while restart:
 	try:
 		exec(compile(open("IRC.py").read(), "IRC.py", "exec"), globals(), locals())
 		server = IRCBot(name, joinChansOnStart)
 		server.start()
 
-		while server.is_alive():
-			time.sleep(1)
+		# while server.is_alive():
+			# time.sleep(1)
 
+		server.join()
 		restart = server._restart
-		joinChansOnStart = server.joinChansOnStart
-
 		del server
+
 	except Exception as e:
 		Echo.end()
 		print(traceback.format_exc())
 
-	if restart:# and not self.end and not self.allowRestart or self.restartOnExc:
+	if restart:
 		print("restart in 2 seconds")
 		time.sleep(2)
 		print("restarting now...")

@@ -1,0 +1,21 @@
+{
+	"user": [],
+	"syntax": {
+		"refreshPermFile": [
+			",refreshPermFile",
+			"refreshes from Permission File"
+		],
+		"listGroups": [
+			",listGroups",
+			"lists all Groups"
+		],
+		"listPermsOfGroup": [
+			",listPermsOfGroup \u001D<group>\u001D",
+			"lists all Permissions of Group"
+		],
+		"listPermsOfUser": [
+			",listPermsOfUser \u001D<user>\u001D",
+			"lists all Permissions of User"
+		]
+	}
+}

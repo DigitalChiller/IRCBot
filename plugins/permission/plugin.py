@@ -30,21 +30,21 @@
 if nickHgl:
 	if fromOwner or auth(uperms, plName, msg["cmd"]):
 		if len(args) == 0:
-			if msg["cmd"] == "refreshpermfile":
+			if msg["cmd"] == "refreshPermFile":
 				self.permM.readConf()
 				self.feedback("success")
 
-			elif msg["cmd"] == "lsgroups":
+			elif msg["cmd"] == "listGroups":
 				self.feedback(self.permM.getGroups())
 
 		elif len(args) == 1:
-			if msg["cmd"] == "lsuperms":
+			if msg["cmd"] == "listPermsOfUser":
 				self.feedback(self.permM.perms(args[0]))
 
-			elif msg["cmd"] == "lsgperms":
+			elif msg["cmd"] == "listPermsOgGroup":
 				self.feedback(self.permM.getPermsOfGroup(args[0]))
 
-			elif msg["cmd"] == "lsugroups":
+			elif msg["cmd"] == "listGroupsOfUser":
 				self.feedback(self.permM.getGroupsOfUser(args[0]))
 
 			elif msg["cmd"] == "newGroup":

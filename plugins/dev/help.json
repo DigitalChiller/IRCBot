@@ -1,0 +1,21 @@
+{
+	"user": [],
+	"syntax": {
+		"do0": [
+			"differs",
+			"des debug stuff"
+		],
+		"do1": [
+			"differs",
+			"des debug stuff"
+		],
+		"do2": [
+			"differs",
+			"des debug stuff"
+		],
+		"do3": [
+			"differs",
+			"does debug stuff"
+		]
+	}
+}

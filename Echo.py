@@ -93,6 +93,7 @@ class ScrollText():
 		self.doScroll = True
 		self.text = []
 		self.logFile = logFile
+		self._stopnow = False
 
 		temp = ""
 		temp += "\n"*3
@@ -111,12 +112,16 @@ class ScrollText():
 			curses.init_pair(10+i, i, -1)
 
 		self.win = curses.newwin(self.height, self.width, self.posy,self.posx)
+		self.win.timeout(3)
 		self.win.scrollok(1)
 		self.win.idlok(1)
 		self.win.move(self.height - 1, 0)
-		threading.Thread(None, self.scroll, "Echo.scroll", daemon = True).start()
+		threading.Thread(None, self.scroll, "scroll").start()
 
 	def echo(self, msg, type = None, replace=0, *, fancy = False, **kwargs):
+		if self._stopnow:
+			print(msg)
+			return
 		try:
 			if type == None:
 				type = self.defType
@@ -126,18 +131,13 @@ class ScrollText():
 			
 			if len(msg) > 0:
 				if fancy:
-					for i in range(0,2):
-						try:
-							temp = msg
-							if i == 1 and False:
-								self.echo("WTF HOW COULD THAT HAVE HAPPEND",warn)
-								temp = msg.replace("'", '"')		#I keep that just for trolling Sorunome >D
-							temp = json.loads(temp)
-							temp = pprint.PrettyPrinter(**kwargs).pformat(temp)
-							msg = temp
-							break
-						except Exception as e:
-							pass
+					try:
+						temp = msg
+						temp = json.loads(temp)
+						temp = pprint.PrettyPrinter(**kwargs).pformat(temp)
+						msg = temp
+					except Exception as e:
+						pass
 				text = ""
 				for line in msg.split("\n"):
 					temp = [type, line]
@@ -149,6 +149,7 @@ class ScrollText():
 				if self.logFile != None:
 					with open(self.logFile, "a") as f:
 						f.write(text)
+
 		except Exception as e:
 			temp = traceback.format_exc().replace("\n", "\r\n")
 			print("\n" + temp)
@@ -168,17 +169,15 @@ class ScrollText():
 			#raise Exception
 
 	def scroll(self):
-		while True:
+		while not self._stopnow:
 			key = self.win.getch()
-			if key == 113:
-				self.exit = True
-				return
-			elif self.curserLn > self.height and key == 65:
+			if self.curserLn > self.height and key == 65:
 				self.curserLn -= 1
 				self.refr()
 			elif self.curserLn < self.scrollback and key == 66:
 				self.curserLn += 1
 				self.refr()
+		return
 
 	def addPref(self, name, text, color):
 		self.p[name] = {}
@@ -197,3 +196,7 @@ class ScrollText():
 					t += ":".join(line)
 					t += "\n"
 			f.write(t)
+
+	def stop(self):
+		self._stopnow = True
+

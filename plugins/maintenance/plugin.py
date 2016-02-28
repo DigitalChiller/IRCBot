@@ -15,7 +15,6 @@
 #    along with nBot.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-
 ## variables
 # msg = message dict
 # args = list of args
@@ -26,45 +25,34 @@
 ## functions
 # self.feedback(msg)
 #  use this to send something back
-# bot.botdo(action, *args, **kwargs)
-#  use this to tell the bot to do something
 
 if nickHgl:
 	if fromOwner or auth(uperms, plName, msg["cmd"]):
-		if msg["cmd"] == "join":
-			if len(args) == 1:
-				bot.joinChan(msg["args"])
-			else:
-				self.handleError("syntax")
-
-		elif msg["cmd"] == "part":
+		if msg["cmd"] == "restartBot":
 			if len(args) == 0:
-				bot.part(target)
-			elif len(args) == 1:
-				bot.part(msg["args"])
-
-		elif msg["cmd"] == "nick":
-			if len(args) == 1:
-				bot.changeNick(args[0])
+				self.feedback("bye, restarting")
+				bot.shutdown("restart", "bye, restarting now", 1, 1)
 			else:
 				self.handleError("syntax")
 
-		elif msg["cmd"] == "exit":
-			self.feedback("not implemented")
-
-		elif msg["cmd"] == "privmsg":
-			if len(args) > 1:
-				bot.privmsg(args[0], " ".join(args[1:]))
+		elif msg["cmd"] == "reconnectBot":
+			if len(args) == 0:
+				self.feedback("bye, reconnecting now")
+				bot.shutdown("reconnect", "bye, reconnecting now", 1, 1)
 			else:
 				self.handleError("syntax")
 
-		elif msg["cmd"] == "sendRaw":
-			if len(args) > 1:
-				bot.sendRaw(msg["args"])
+		elif msg["cmd"] == "stopBot":
+			if len(args) == 0:
+				self.feedback("going down now, bye")
+				bot.shutdown("stop", "bye, going down", 1, 1)
 			else:
 				self.handleError("syntax")
 
-		elif msg["cmd"] == "refreshConfig":
-			bot.configFile.read()
-			bot.config = bot.configFile.data
-			self.feedback("success")
+		elif msg["cmd"] == "updateBot":
+			if len(args) == 0:
+				self.feedback("not implemented")
+			else:
+				self.handleError("syntax")
+
+

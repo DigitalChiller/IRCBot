@@ -1,0 +1,13 @@
+{
+	"user": [],
+	"syntax": {
+		"join": [
+			",join \u001D<channel>\u001D",
+			"joins channel"
+		],
+		"part": [
+			",part \u001D<channel>\u001D",
+			"parts channel"
+		]
+	}
+}

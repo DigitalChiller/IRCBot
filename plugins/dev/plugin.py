@@ -43,15 +43,13 @@ if nickHgl and msg["cmdPref"] == ",":
 
 		elif msg["cmd"] == "do1":
 			self.feedback("buh")
-			bot.shutdown("restart")
+			bot.shutdown("stop")
 			#bot._stopnow = True
 
 		elif msg["cmd"] == "do2":
-			threads = threading.enumerate()
-			fb = []
-			for t in threads:
-				fb.append(t.name)
-			self.feedback("'" + "', '".join(fb) + "'")
+			if len(args) == 1:
+				self.lastMsg["cmd"] = args[0]
+			self.handleError("syntax")
 
 		elif msg["cmd"] == "do3":
 			bot.sendraw("names #digital")

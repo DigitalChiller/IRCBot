@@ -1,0 +1,17 @@
+{
+	"user": [],
+	"syntax": {
+		"listPlugins": [
+			",listPlugins",
+			"lists all loades Plugins"
+		],
+		"addPlugin": [
+			",addPlugin \u001D<type>\u001D \u001D<name>\u001D",
+			"adds a Plugins"
+		],
+		"remPlugin": [
+			",listPermsOfGroup \u001D<type>\u001D \u001D<name>\u001D",
+			"removes a Plugin"
+		]
+	}
+}

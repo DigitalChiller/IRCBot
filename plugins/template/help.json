@@ -1,0 +1,13 @@
+{
+	"user": [],
+	"syntax": {
+		"cmd1": [
+			",cmd1 \u001D<arg>\u001D",
+			"does stuff"
+		],
+		"cmd2": [
+			",cmd2 \u001D<arg>\u001D",
+			"does stuff"
+		]
+	}
+}

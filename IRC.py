@@ -138,31 +138,43 @@ class SocketHandler(threading.Thread):
 		self.failinfo = {}
 
 	def run(self):
-		self.s.connect((self.address,self.port)) #connect to the server
+		try:
+			self.s.connect((self.address,self.port)) #connect to the server
+		except:
+			error(info="connecting socket to server", fail=True)
 		self.connected = True
 
 		while not self._stopnow:
-			stuff = self.s.recv(self.buffersize)
 			try:				#trying to decode the message
+				stuff = self.s.recv(self.buffersize)
 				stuff = stuff.decode(self.encoding)
 			except:
 				if stuff != '':
 					try:
 						stuff = stuff.decode(chardet.detect(stuff)['encoding'])
 					except Exception as e:
-						if e is BrokenPipeError or ConnectionResetError:
-							echo(traceback.format_exc(), "warn")
-							self.failed = True
-							self.failinfo = {"type":type(e).__name__, "time":time.time()}
-							return
+						echo(e)
+						error(info="socketHandler")
+#							echo(traceback.format_exc(), "warn")
+						self.failed = True
+						self.failinfo = {"type":type(e).__name__, "time":time.time()}
+						self.stop()
+						return
 
 			for line in stuff.replace("\r","").split("\n"):		#split received messages by new lines and put them into self.lines
 				self.q.put(line)
 
 	def stop(self):
-		self.s.shutdown(0)
-		self.s.close()
-		self._stopnow = True
+		if not self._stopnow:
+			try:
+				self.s.shutdown(0)
+			except:
+				error(info="SocketHandler")
+			try:
+				self.s.close()
+			except:
+				error(info="SocketHandler")
+			self._stopnow = True
 
 	def send(self, msg):
 		self.s.send(bytes(msg, self.encoding))						
@@ -348,7 +360,7 @@ class PluginHandler(threading.Thread):
 
 	def handleError(self, error, *args, fb=True):
 		if error == "syntax":
-			self.feedback(bold("Invalid Syntax") + ": correct syntax of '" + italic(self.lastMsg["cmd"]) + "' is: '" + italic(self.help.get(self.lastMsg["cmd"], {"syntax":"no syntax specified"})[0])+"'")
+			self.feedback(bold("Invalid Syntax") + ": correct syntax of '" + underline(self.lastMsg["cmd"]) + "' is: '" + underline(self.help.get(self.lastMsg["cmd"], {"syntax":"no syntax specified"})[0])+"'")
 
 		elif error == "unknown":
 			self.feedback(bold("Unknown Error") + ": something unexpected happend")
@@ -648,40 +660,46 @@ class IRCBot(threading.Thread):
 		#self.thread_consInp.start()
 		while not self._stopnow:
 			try:
+#				echo(type(self.failinfo))
+
 				if self.debug_break:
 					self.debug_break = False
 					raise I_like_trains
 				if self.sH_irc.failed:
 					self.failed = True
-					self.failinfo.insert(0, self.sH_irc.failinfo)
+					try:
+						self.failinfo.insert(0, self.sH_irc.failinfo)
+					except:
+						error()
 
 				if self.failed:
 					echo(self.failinfo[0], "warn")
-					self.shutdown(self.failinfo[0].get("action", "reconnect"), reason="bad connection", delay=0, downtime = 21)
-					
-					# self.connected = False
-					# echo("closing connection")
-					# self.sH_irc.stop()
+					if type(self.failinfo) is list() and False:
+						pass
+					elif False:
+						print(self.failinfo)
+						echo(self.failinfo, "warn")
+						echo("notlist")
+						time.sleep(5)
 
-					# echo("clearing queues")
-					# self.plH_user.q.queue.clear()
-					# self.sH_irc.q.queue.clear()
+					if self.failinfo[0]["type"] == "ConnectionResetError":
+						self.shutdown("restart", self.failinfo[0]["type"], 1, 10)
 					
-					# echo("deleting socket and threads")
-					# del self.sH_irc
-					# del self.thread_connect
-
-					# echo("recreating socket and threads")
-					# self.sH_irc = SocketHandler(self.config["ipconnect"], self.port, self.buffer, self.encoding, self.ssl)
-				
-					# self.thread_connect = threading.Thread(None, self.connect, "connect")
-					# self.failed = False
-
-					# echo("waiting 21 seconds")
-					# time.sleep(21)
+					elif self.failinfo[0]["type"] == "BrokenPipeError":
+						self.shutdown("restart", self.failinfo[0]["type"], 1, 10)
 					
-					# echo("reconnecting NOW")
-					# self.thread_connect.start()
+					elif self.failinfo[0]["type"] == "NickError":
+						self.shutdown("reconnect", self.failinfo[0]["type"], 1, 25)
+
+					elif self.failinfo[0]["type"] == "ssl.SSLError":
+						self.shutdown("stop", self.failinfo[0]["type"], 1, 1)
+					
+					else:
+						print("\r\n")
+						print(self.failinfo[0])
+						print("\r\n")
+						echo(self.failinfo[0]["type"], "warn")
+						self.shutdown("stop", "Unknown Error: " + self.failinfo[0]["type"])
 
 				if self._stopnow == True:
 					break
@@ -691,50 +709,16 @@ class IRCBot(threading.Thread):
 				error()
 				time.sleep(4)
 				return
-		#return True
-		for i in range(0,10):
+
+		for i in range(0,21):
 			if self._exit:
-				return True
+				print("bye from run")
+				return
 			else:
 				time.sleep(1)
 
-		return False
-		#self.shutdown("stop", delay=10)
-		
-
-		# for h in self.handler:
-		# 	h.stop()
-
-		#echo("waiting for threads to stop...")
-		# for t in threading.enumerate():
-		# 	try:
-		# 		omitted = False
-		# 		if t.ident == None:
-		# 			omitted = "not started"
-		# 		elif t == threading.main_thread():
-		# 			omitted = "main thread"
-		# 		elif t == threading.current_thread():
-		# 			omitted = "current thread"
-		# 		elif t.daemon:
-		# 			omitted = "daemon"
-
-		# 		if omitted:
-		# 			echo("omitted {omitted} thread {thread}".format(thread=t.name, omitted=omitted))
-		# 		else:
-		# 			echo("joining thread {thread}".format(thread=t.name))
-		# 			t.join(5)
-		# 			if t.is_alive():
-		# 				echo("thread {thread} did not exit within 5 seconds!".format(thread=t.name))
-		# 			else:
-		# 				echo("thread {thread} exited!".format(thread=t.name))
-		# 	except:
-		# 		echo(traceback.format_exc(), "warn")
-
-		# echo("all threads stopped!")
-		# echo("exiting in 2 seconds")
-		# time.sleep(2)
-		# Echo.end(SCREEN)
-		# return
+		print("forced bye from run")
+		return
 				 
 	def detectTimeout(self):
 		#this function detects ping timouts and pings the server regulary
@@ -758,7 +742,7 @@ class IRCBot(threading.Thread):
 					temp = "pingtimeout! %s" % pong
 					echo(temp, "warn")
 					self.failed = True
-					self.failinfo.insert(0, {"type":"PingTimeout: " + str(pong), "time":time.time()})
+					self.failinfo.insert(0, {"type":"PingTimeout", "info":str(pong), "time":time.time()})
 
 			except:
 				echo(traceback.format_exc(), "warn")
@@ -842,13 +826,17 @@ class IRCBot(threading.Thread):
 			except:
 				error()
 
-	def error(self, target=False, info=""):
+	def error(self, target=False, info="", fail=False):
 		tb = traceback.format_exc()
-		echo(tb, "warn")
-		echo("info:" + info, "warn")
-
 		temp = tb.splitlines()[-1].split()
 		errinfo = colored(bold(temp[1]), "red") + " " + " ".join(temp[1:])
+
+		if fail:
+			self.failed = True
+			self.failinfo.insert(0, {"type":temp[0].replace(":",""), "time":time.time()})
+		else:
+			echo(tb, "warn")
+			echo("info:" + info, "warn")
 
 		if self.connected:
 			self.sendowner(errinfo)
@@ -877,18 +865,20 @@ class IRCBot(threading.Thread):
 
 		self.sendRaw("USER %s %s %s %s\r\n" % ("nBot","youwishyoudknow",self.serverName, self.realname))
 
-		i = 0
-		while not self._stopnow:
+		for i in range(1,6):
 			wait = self.waitFor("001", 2.1)
+			if self._stopnow:
+				return
 			if type(wait)is float:
-				i += 1
-				if i < len(self.config["nick"]):
+				if i >= 1:
+					if not self.failed:
+						self.failinfo.insert(0, {"type":"NickError", "time":time.time(), "action":"restart"})
+						self.failed = True
+					return
+
+				elif i < len(self.config["nick"]):
 					nick = self.config["nick"][i]
 					self.changeNick(nick)
-				elif i > 6:
-					self.failinfo.insert(0, {"type":"connect", "time":time.time(), "action":"restart"})
-					self.failed = True
-					return False
 				else:
 					nick += "_"
 					self.changeNick(nick)
@@ -929,13 +919,9 @@ class IRCBot(threading.Thread):
 			self.sH_irc.send(msg)
 			#self.sH_irc.send(bytes(msg, self.encoding))
 		except Exception as e:
-			if e is BrokenPipeError:
-				echo("brokenPipe!", "warn")
-				self.brokenPipe = True
-			elif e is ConnectionResetError:
-				echo("connectionReset", "warn")
-				self.connectionReset = True
-			echo(traceback.format_exc(), "warn")
+			error(info="sendRaw", fail=True)
+			# self.failed = True
+			# self.failinfo.insert(0, {"type":type(e).__name__, "action":"restart", "time":time.time()})
 			
 	def joinChan(self, chan, msg = ""):
 		if chan[0] == "_":
@@ -989,6 +975,8 @@ class IRCBot(threading.Thread):
 		endTime = startTime + timeout
 		passedTime = 0
 		while passedTime < timeout and not self._stopnow:
+			if self._stopnow:
+				return False
 			if self.search[key] != False:
 				ret = self.search[key]
 				del self.search[key]
@@ -1014,23 +1002,14 @@ class IRCBot(threading.Thread):
 	def who(self, target):
 		self.sendRaw("WHO %s\r\n" % (target))
 
-	def task(self, *commands, waitfor=None):
-		if waitfor != None:
-			self.waitFor(waitfor)
-		for c in commands:
-			try:
-				exec(c, globals(), locals())
-			except Exception as e:
-				echo(traceback.format_exc(), "warn")
-
 	def handle_keybInt(self, *args):
+		signal.signal(signal.SIGINT, signal.SIG_DFL)
 		echo("KeyboardInterrupt", "warn")
-		echo(args, "warn")
+#		echo(args, "warn")
 		self.failinfo.insert(0, {"type":"KeyboardInterrupt", "time":time.time(), "action":"stop"})
 		self.failed = True
 
-		#self.shutdown("stop", reason = "manual shutdown")#(quitDelay = 1, stopDelay = 0)
-		signal.signal(signal.SIGINT, signal.SIG_DFL)
+#		self.shutdown("stop", reason = "manual shutdown", downTime = 1, delay = 1)
 		
 	def handle_resize(self, *args):
 		w,h = self.getTerminalSize_linux()
@@ -1041,7 +1020,7 @@ class IRCBot(threading.Thread):
 		LogOutp.width = w - 1
 		LogOutp.refr()
 
-	def shutdown(self, action, reason=None, downtime=10, delay=1):
+	def shutdown(self, action, reason=None, downTime=10, delay=1):
 		
 		echo("quitting irc server")
 		try:
@@ -1057,11 +1036,10 @@ class IRCBot(threading.Thread):
 						
 			echo("deleting socket and threads")
 			self.handler.remove(self.sH_irc)
-			del self.sH_irc
 			del self.thread_connect
+			del self.sH_irc
 		except:
 			error()
-			#time.sleep(5)
 
 		if action == "reconnect":
 			echo("recreating socket and threads")
@@ -1076,8 +1054,8 @@ class IRCBot(threading.Thread):
 
 			self.failed = False
 
-			echo("waiting " + str(downtime) + " seconds")
-			time.sleep(downtime)
+			echo("waiting " + str(downTime) + " seconds")
+			time.sleep(downTime)
 					
 			echo("reconnecting NOW")
 			self.thread_connect.start()
@@ -1091,14 +1069,17 @@ class IRCBot(threading.Thread):
 			for h in self.handler:
 				h.stop()
 
+				LogOutp.stop()
+				Echo.end(SCREEN)
+
 			for t in threading.enumerate():
 				omitted = False
 				if t.ident == None:
 					omitted = "not started"
 				elif t == threading.main_thread():
-					omitted = "main thread"
+					omitted = "main"
 				elif t == threading.current_thread():
-					omitted = "current thread"
+					omitted = "current"
 				elif t.daemon:
 					omitted = "daemon"
 
@@ -1114,25 +1095,11 @@ class IRCBot(threading.Thread):
 						echo("thread {thread} exited!".format(thread=t.name))
 
 			echo("all threads stopped!")
-			echo("exiting in " + str(downtime) + " seconds")
-			time.sleep(downtime)
-			Echo.end(SCREEN)
+			echo("exiting in " + str(downTime) + " seconds")
+			time.sleep(downTime)
 			self._exit = True
-			print("bye")
+			print("bye from shutdown because " + str(reason))
 			return
-
-
-		# if reason == None:
-		# 	reason = self.quitMsg
-		
-		# if restart == None:
-		# 	restart = self._restart
-		# else:
-		# 	restart = str(restart).lower() == "true"
-
-		# self.willStop = True
-		# thread_exit = threading.Thread(target = self.exit, name = "exit", args = (), kwargs = {"stopDelay": stopDelay, "quitDelay": quitDelay, "reason": reason, "restart": restart})
-		# thread_exit.start()
 
 	def exit(self, *, reason = "bye", restart = None, **kwargs):
 		if restart != None:
