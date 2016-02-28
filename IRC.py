@@ -506,6 +506,7 @@ class IRCBot(threading.Thread):
 		self.encoding = encoding
 
 		# indicates if the bot is correctly connected to the server, True if so, False otherwise
+		self._status = "running"
 		self.connected = False
 		# indicates if the bot is shutting down, True if so, False otherwise
 		self._stopnow = False
@@ -528,7 +529,7 @@ class IRCBot(threading.Thread):
 		self.logPingPong = True
 
 		# time between ping requests from the bot
-		self.pingFrequency = 105
+		self.pingFrequency = 20#105
 		
 		# maximum time waited for the server to response to a ping
 		self.maxPingTimeout = 42
@@ -648,7 +649,10 @@ class IRCBot(threading.Thread):
 
 		signal.signal(signal.SIGINT, self.handle_keybInt)		
 
-
+	def is_up(self):
+		return not self._stopnow
+		return not self._status in ["stopping", "stoppend"]
+	
 	def run(self):
 		# this function is called when the bot starts
 		# error detection/handling and other stuff
@@ -658,7 +662,7 @@ class IRCBot(threading.Thread):
 		self.plH_user.start()
 		self.plH_server.start()
 		#self.thread_consInp.start()
-		while not self._stopnow:
+		while self.is_up():
 			try:
 #				echo(type(self.failinfo))
 
@@ -683,16 +687,19 @@ class IRCBot(threading.Thread):
 						time.sleep(5)
 
 					if self.failinfo[0]["type"] == "ConnectionResetError":
-						self.shutdown("restart", self.failinfo[0]["type"], 1, 10)
+						self.shutdown("restart", self.failinfo[0]["type"], 15, 1)
 					
 					elif self.failinfo[0]["type"] == "BrokenPipeError":
-						self.shutdown("restart", self.failinfo[0]["type"], 1, 10)
+						self.shutdown("restart", self.failinfo[0]["type"], 15, 1)
 					
 					elif self.failinfo[0]["type"] == "NickError":
-						self.shutdown("reconnect", self.failinfo[0]["type"], 1, 25)
+						self.shutdown("reconnect", self.failinfo[0]["type"], 15, 1)
 
 					elif self.failinfo[0]["type"] == "ssl.SSLError":
 						self.shutdown("stop", self.failinfo[0]["type"], 1, 1)
+
+					elif self.failinfo[0]["type"] == "KeyboardInterrupt":
+						self.shutdown("stop", self.failinfo[0]["type"], 0, 0)
 					
 					else:
 						print("\r\n")
@@ -701,56 +708,53 @@ class IRCBot(threading.Thread):
 						echo(self.failinfo[0]["type"], "warn")
 						self.shutdown("stop", "Unknown Error: " + self.failinfo[0]["type"])
 
-				if self._stopnow == True:
-					break
-				time.sleep(0.42)
+				time.sleep(0.01)
 
 			except Exception as e:
 				error()
 				time.sleep(4)
-				return
 
-		for i in range(0,21):
-			if self._exit:
-				print("bye from run")
-				return
-			else:
-				time.sleep(1)
+		# for i in range(0,21):
+		# 	if self._exit:
+		# 		print("bye from run")
+		# 		return
+		# 	else:
+		# 		time.sleep(1)
 
 		print("forced bye from run")
 		return
 				 
 	def detectTimeout(self):
 		#this function detects ping timouts and pings the server regulary
-		while not self._stopnow:
-			while not self.connected:
-				if self._stopnow:
-					return
+		i = 0
+		while self.is_up():
+			if self._status == "connecting":
 				time.sleep(1)
+			elif 0 <= i < self.pingFrequency:
+				time.sleep(1)
+				i += 1
+			elif i == self.pingFrequency:
+				i = 0
+				try:
+					pingStr = randStr(10).upper() + "-" + self.nick
+					self.sendRaw("PING :" + pingStr, verbose = self.logPingPong)
+					wait = self.waitFor(":%s PONG %s :%s" % (self.network, self.network, pingStr), timeout = self.maxPingTimeout, verbose = False)
+					if not self.is_up():
+						break
+					elif type(wait) is float: # or type(pong) is int:
+						temp = "pingtimeout! %s" % pong
+						echo(temp, "warn")
+						self.failed = True
+						self.failinfo.insert(0, {"type":"PingTimeout", "info":str(pong), "time":time.time()})
+				except:
+					error(info="detectTimeout")
 
-			try:
-				for i in range(0, self.pingFrequency):
-					if self._stopnow:
-						return
-					time.sleep(1)
-					
-				pingStr = randStr(10).upper() + "-" + self.nick
-				self.sendRaw("PING :" + pingStr, verbose = self.logPingPong)
-				pong = self.waitFor(":%s PONG %s :%s" % (self.network, self.network, pingStr), timeout = self.maxPingTimeout, verbose = False)
-				
-				if type(pong) is float: # or type(pong) is int:
-					temp = "pingtimeout! %s" % pong
-					echo(temp, "warn")
-					self.failed = True
-					self.failinfo.insert(0, {"type":"PingTimeout", "info":str(pong), "time":time.time()})
-
-			except:
-				echo(traceback.format_exc(), "warn")
+		echo("bye from detectTimeout")
 
 	def handle(self):
 		# this function is for message handling
 
-		while not self._stopnow:
+		while self.is_up():
 			# sleep when nothing to do
 			try:
 				if self.sH_irc.q.empty():

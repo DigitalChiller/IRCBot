@@ -35,10 +35,6 @@ while restart:
 		exec(compile(open("IRC.py").read(), "IRC.py", "exec"), globals(), locals())
 		server = IRCBot(name, joinChansOnStart)
 		server.start()
-
-		# while server.is_alive():
-			# time.sleep(1)
-
 		server.join()
 		restart = server._restart
 		del server
