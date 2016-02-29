@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-
+# 
 ## LICENSE
 #    This file is part of nBot.
 #
@@ -16,32 +16,28 @@
 #    You should have received a copy of the GNU General Public License
 #    along with nBot.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-
-#import traceback, json, socket, time, re, chardet, random, threading
-#import queue, pprint, sys, signal, ssl, curses
-#from echo import Echo
-#===== import stuff
-import traceback
-import datetime
-import re
-import time
-import socket
+### import pyhton libraries
 import chardet
-import random
-import threading
-import queue
-#import pprint
-import sys
+import copy
+import collections
+import datetime
+import json
+import logging, logging.handlers
 import os
+import queue
+import re
+import random
+import socket
+import sys
 import signal
 import ssl
-import copy
-import curses
-#import curses.textpad
-import json
-from collections import OrderedDict
-import Echo 	#look at Echo.py
+import time
+import threading
+import traceback
+#
+### import own libraries
+from Color import *
+
 
 def randStr(length):
 		temp = ''
@@ -49,54 +45,15 @@ def randStr(length):
 			temp = temp + random.choice('abcdefghijklmnopqrstuvwxyz')
 		return temp	
 
-def bold(msg):
-	return "\x02" + str(msg) + "\x02"
-
-def color(msg):
-	return "\x03" + str(msg) + "\x03"
-
-def italic(msg):
-	return "\x1D" + str(msg) + "\x1D"
-
-def underline(msg):
-	return "\x1F" + str(msg) + "\x1F"
-
-def swapFB(msg):
-	return "\x16" + str(msg) + "\x16"
-
-reset = "\x0F"
-
-colors = {
-	"white": "00",
-	"black": "01",
-	"blue": "02",
-	"green": "03",
-	"red": "04",
-	"brown": "05",
-	"purple": "06",
-	"orange": "07",
-	"yellow": "08",
-	"lightgreen": "09",
-	"cyan": "10",
-	"lightcyan": "11",
-	"lightblue": "12",
-	"pink": "13",
-	"grey": "14",
-	"lightgrey": "15"
-}
-
-def colored(msg, fg="default", bg="default"):
-	return color(colors.get(fg,"99") + "," + colors.get(bg,"99") + str(msg))
-
 
 
 class VariableBundle(object):
 	"""use this for variable managing"""
 	pass
-	# def __init__(self):
-	# 	super(VariableBundle, self).__init__()
-		
-class Config():
+
+
+
+class Config(object):
 	"""
 	This class is for easier File handling.
 	"""
@@ -107,76 +64,12 @@ class Config():
 	def read(self):
 		with open(self.filePath) as f:
 			lines = f.readlines()
-			self.data = json.loads("\n".join(lines), object_pairs_hook=OrderedDict)
+			self.data = json.loads("\n".join(lines), object_pairs_hook=collections.OrderedDict)
 		return self.data
 
 	def save(self):
 		with open(self.filePath, "w") as f:
 			json.dump(self.data, f, indent = 4)
-
-
-
-class SocketHandler(threading.Thread):
-	"""docstring for SocketHandler"""
-	def __init__(self, address, port, buffersize, encoding, is_ssl=False, name="sHandler"):
-		super(SocketHandler, self).__init__()
-		self.name = name
-		self.address = address
-		self.port = port
-		self.buffersize = buffersize
-		self.encoding = encoding
-		self.is_ssl = is_ssl
-
-		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		if self.is_ssl:
-			self.s = ssl.wrap_socket(self.s)
-
-		self.connected = False
-		self._stopnow = False
-		self.q = queue.Queue()
-		self.failed = False
-		self.failinfo = {}
-
-	def run(self):
-		try:
-			self.s.connect((self.address,self.port)) #connect to the server
-			self.connected = True
-		except:
-			error(info="connecting socket to server", fail=True)
-
-		while not self._stopnow:
-			try:
-				recvMsg = self.s.recv(self.buffersize)
-				msg = recvMsg.decode(self.encoding)
-			except:
-				error()
-				if msg != "\x00":
-					try:
-						msg = recvMsg.decode(chardet.detect(recvMsg)['encoding'])
-					except Exception as e:
-						error(info="socketHandler")
-						self.failed = True
-						self.failinfo = {"type":type(e).__name__, "time":time.time()}
-						self.stop()
-						return
-
-			for line in msg.replace("\r","").split("\r\n"):		#split received messages by new lines and put them into self.lines
-				self.q.put(line)
-
-	def stop(self):
-		if not self._stopnow:
-			try:
-				self.s.shutdown(0)
-			except:
-				error(info="SocketHandler")
-			try:
-				self.s.close()
-			except:
-				error(info="SocketHandler")
-			self._stopnow = True
-
-	def send(self, msg):
-		self.s.send(bytes(msg, self.encoding))						
 
 
 
@@ -283,7 +176,6 @@ class PermissionManager(object):
 			self._perms[u] = []
 			for g in self._users[u].copy():
 				if g in self._groups:
-					echo(g)
 					self._perms[u].extend(self._groups[g])
 				else:
 					self._users[u].remove(g)
@@ -303,9 +195,73 @@ class PermissionManager(object):
 
 
 
+class SocketHandler(threading.Thread):
+	"""docstring for SocketHandler"""
+	def __init__(self, address, port, buffersize, encoding, is_ssl=False, name="sHandler"):
+		super(SocketHandler, self).__init__()
+		self.name = name
+		self.address = address
+		self.port = port
+		self.buffersize = buffersize
+		self.encoding = encoding
+		self.is_ssl = is_ssl
+
+		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		if self.is_ssl:
+			self.s = ssl.wrap_socket(self.s)
+
+		self.connected = False
+		self._stopnow = False
+		self.q = queue.Queue()
+		self.failed = False
+		self.failinfo = {}
+
+	def run(self):
+		try:
+			self.s.connect((self.address,self.port)) #connect to the server
+			self.connected = True
+		except:
+			error(info="connecting socket to server", fail=True)
+
+		while not self._stopnow:
+			try:
+				recvMsg = self.s.recv(self.buffersize)
+				msg = recvMsg.decode(self.encoding)
+			except:
+				#error()
+				if len(msg) > 1:#!= "\x00":
+					try:
+						msg = recvMsg.decode(chardet.detect(recvMsg)['encoding'])
+					except Exception as e:
+						error(info="socketHandler")
+						self.failed = True
+						self.failinfo = {"type":type(e).__name__, "time":time.time()}
+						self.stop()
+						return
+			
+			lines = msg.strip().replace("\r", "").split("\n")
+			for l in lines:		#split received messages by new lines and put them into self.lines
+				self.q.put(l)
+
+	def stop(self):
+		if not self._stopnow:
+			try:
+				self.s.shutdown(0)
+			except:
+				error(info="SocketHandler")
+			try:
+				self.s.close()
+			except:
+				error(info="SocketHandler")
+			self._stopnow = True
+
+	def send(self, msg):
+		self.s.send(bytes(msg, self.encoding))						
+
+
+
 class PluginHandler(threading.Thread):
 	"""docstring for ExtensionHandler"""
-
 	def __init__(self, dataDir, bot, *, pluginDir="plugins/", name="plHandler"):
 		super(PluginHandler, self).__init__()
 		self.name = name
@@ -355,7 +311,7 @@ class PluginHandler(threading.Thread):
 		if self.lastMsg["target"] != "":
 			self.bot.privmsg(self.lastMsg["target"], msg)
 		else:
-			echo("target unknown, couldn't send '" + msg + "'")
+			logging.warning("target unknown, couldn't send '{}'".format(msg))
 
 	def handleError(self, error, *args, fb=True):
 		if error == "syntax":
@@ -401,12 +357,12 @@ class PluginHandler(threading.Thread):
 
 			if "help.json" in plFiles:				
 				with open(pldir + "help.json") as f:
-					temp = json.loads(f.read(), object_pairs_hook=OrderedDict)
+					temp = json.loads(f.read(), object_pairs_hook=collections.OrderedDict)
 				self.help.update(temp["syntax"])
 				self._usercmds.extend(temp["user"])
 					#exec(f.read(), globals(), lvars)
 
-			echo("added plugin " + plName)
+			logging.info("added plugin " + plName)
 
 		except:
 			error(info=plName)
@@ -427,7 +383,7 @@ class PluginHandler(threading.Thread):
 
 			if "help.json" in plFiles:				
 				with open(pldir + "help.json") as f:
-					temp = update(json.loads(f.read(), object_pairs_hook=OrderedDict))
+					temp = update(json.loads(f.read(), object_pairs_hook=collections.OrderedDict))
 
 				for c in temp["user"]:
 					if c in self._usercmds:
@@ -436,7 +392,7 @@ class PluginHandler(threading.Thread):
 					del self.help[c]
 
 		except:
-			echo(traceback.format_exc(), "warn")
+			logging.error(traceback.format_exc())
 			return False
 		else:
 			return True
@@ -454,7 +410,7 @@ class PluginHandler(threading.Thread):
 
 			if "help.json" in plFiles:				
 				with open(pldir + "help.json") as f:
-					temp = json.loads(f.read(), object_pairs_hook=OrderedDict)
+					temp = json.loads(f.read(), object_pairs_hook=collections.OrderedDict)
 				self.help.update(temp["syntax"])
 				self._usercmds.extend(temp["user"])
 
@@ -465,45 +421,91 @@ class PluginHandler(threading.Thread):
 
 
 
+class FancierFormatter(logging.Formatter):
+	"""docstring for FancierStreamHandler"""
+	levelColors = {
+		50: "\033[30;43m[CRIT]\033[m",
+		40: "\033[31;49m[ERRO]\033[m",
+		30: "\033[33;49m[WARN]\033[m",
+		22: "\033[95;49m[RECV]\033[m",
+		21: "\033[96;49m[SEND]\033[m",
+		20: "\033[92;49m[INFO]\033[m",
+		10: "\033[93;49m[DEBG]\033[m"
+	}
+	RECEIVE = 22
+	SEND = 21
+	def format(self, record):
+		pref = self.levelColors.get(record.levelno, "[{:^4}]").format(record.levelname)
+		record.levelname = pref
+		result = logging.Formatter.format(self, record).strip()
+		lr = len(record.getMessage().strip())
+		if lr == 0:
+			return "\b"
+		else:
+			return result
+
+	@classmethod
+	def receive(self, msg, *args, **kwargs):
+		logging.log(self.RECEIVE, msg, *args, **kwargs)
+
+	@classmethod
+	def send(self, msg, *args, **kwargs):
+		logging.log(self.SEND, msg, *args, **kwargs)
+
+
+
 class IRCBot(threading.Thread):
 	"""docstring for IRCServer"""
 	def __init__(self, name, dojoin = True, *, doMsgHandle = True, buffer = 4096, encoding = 'UTF-8'):
 	
 		super(IRCBot, self).__init__()
-		global SCREEN
-		global LogOutp
+
 		global echo
-
-		SCREEN = Echo.start() 
-		LogOutp = Echo.ScrollText(scrollback = 200, posy = 0, posx = 0, height= 24, width = 80, logFile = "server/" + name + "/logs.txt")
-		echo = LogOutp.echo
-		self.handle_resize()
-
-
-		LogOutp.addPref("warn", "\r{warn}", curses.color_pair(11)) #these define custom prefixes for the console output
-		LogOutp.addPref("ping", "\r(ping)", curses.color_pair(11))	
-		LogOutp.addPref("recv", "\r[recv]", curses.color_pair(15))
-		LogOutp.addPref("send", "\r[send]", curses.color_pair(16))
-		
 		global error
+
+		echo = logging.debug
 		error = self.error
 
-		echo("-----SETTING EVERYTHING UP-----")
-
-
-		signal.signal(signal.SIGWINCH, self.handle_resize)
-
-		# Bot name, not irc nick!
-		self.serverName = name #the name (folder) of the server/bot, each must be unique
-		#os.chdir(self.serverName)
 		# path to the Bot directory
 		self.botDir = "server/" + name + "/"
 
+		self.fileLogHandler = logging.handlers.TimedRotatingFileHandler(filename=self.botDir+"logs.log", when="midnight")
+		self.fileLogHandler.setLevel(logging.INFO)
+
+		date_frmt = "%m/%d/%Y %H:%M:%S"
+
+		self.consoleLogHandler = logging.StreamHandler(sys.stderr)
+		self.consoleLogHandler.setFormatter(
+				FancierFormatter(
+					fmt = "%(asctime)s%(levelname)s%(message)s",
+					datefmt = date_frmt
+				)
+			)
+
+		logging.basicConfig(
+				format = "%(asctime)s[%(levelname)s]%(message)s",
+				datefmt = date_frmt,
+				level = logging.DEBUG,
+				handlers = [
+					self.fileLogHandler,
+					self.consoleLogHandler
+				]
+			)
+
+		logging.info("-----SETTING EVERYTHING UP-----")
+
+		logging.addLevelName(22, "RECEIVE")
+		logging.addLevelName(21, "SEND")
+
+		logging.receive = FancierFormatter.receive
+		logging.send = FancierFormatter.send
+
+		# Bot name, not irc nick!
+		self.serverName = name #the name (folder) of the server/bot, each must be unique
 		# buffer size
 		self.buffer = buffer
 		# prefered encoding, do i even use this?
 		self.encoding = encoding
-
 		# indicates if the bot is correctly connected to the server, True if so, False otherwise
 		self.status = "running"
 		self.connected = False
@@ -517,25 +519,18 @@ class IRCBot(threading.Thread):
 		self.failed = False
 		# list of information about the fail, every list item is a dict which must contain "type":"<type>" and "time":time.time(), it can contain more
 		self.failinfo = [{"type":None, "time":time.time()}]
-
 		# indicates if the bot answers pings, True if so, False otherwise
 		self.answerPing = True
-
 		# indicates if the bot pings the server, True if so, False otherwise
 		self.sendPing = True
-		
 		# indicates if ping/pong messages are logged, True if so, False otherwise
 		self.logPingPong = True
-
 		# time between ping requests from the bot
 		self.pingFrequency = 20#105
-		
 		# maximum time waited for the server to response to a ping
 		self.maxPingTimeout = 42
-
 		# if true the bot shuts down on pingtimeouts
 		self.doDetectTimeout = True	#if True the bot restarts or shuts down when the bot detects a Ping Timeout
-		
 		# indicates if MOD is logged, True if not so, False otherwise
 		self.blockMOTD = False 			#if True MOTD is not logged
 		# indicates if detailed command information are logged 
@@ -552,15 +547,12 @@ class IRCBot(threading.Thread):
 		self.doMsgHandle = doMsgHandle	#old #if True extensions are executed 
 		# holds fake msg. used to prevent invinite fakesends, {"msg":time.time()}
 		self.fakeMsg = {}
-
 		### FILES
 		# config file, holds general data about the bot and the connection
 		self.configFile = Config(self.botDir + "config.json")
 		self.config = self.configFile.data
-		
 		# passwords
 		self.__pswFile = Config("pw.json").data		#the password file where all passwords are stored, i seperated them for easier code sharing :)
-
 		### IRC Client Information
 		# current irc nick name of the bot
 		self.nick = None
@@ -582,31 +574,22 @@ class IRCBot(threading.Thread):
 		self.greetMsg = self.config["greetMsg"]
 		# default quit message
 		self.quitMsg = self.config["quitMsg"]		
-		
 		# phrases searched for in all messages, False if not found, complete line otherwise
 		self.search = {}	#phrases the bot listens to. if found the complete line will be put as value
 		# uhh uhhm
 		self.chans = {}		#information returned to a names request
 		# heehee
 		self.users = {}		#information returned to a who request
-
 		### re PATTERN JUNGLE MESS
 		# every message line the client receives will be split on these
-#		self.patServerMsg = re.compile(r":(?P<all>((?P<server>[a-z0-9.-]+)\s(?P<reply>\d+|PONG)\s(?P<nick>\w+)(?:[= ]+)?(?P<target>#?\w+)?)(?:[\s: ]*)(?P<suffix>.*))(?P<hostmask>)(?P<hgl>)(?P<cmd>)(?P<args>)", re.I)
 		self.patUMPre = re.compile(r":((?P<nick>\w+)!~?(?P<hostmask>[a-z0-9.@-]+)\s(?P<type>\w+)[\s:]+(?P<target>#?[a-zA-Z0-9-]+))(?:\s:)(?P<suffix>.*)", re.I)
 		self.patUMPre = re.compile(r":((?P<ident>(?P<nick>[a-zA-Z0-9]+)!~?(?P<hostmask>[a-z0-9.@-]+))\s(?P<type>\w+)[\s:]+(?P<target>#?[\w-]+))(?:\s:)(?P<suffix>.*)", re.I)
-
 		self.patServerMsg = re.compile(r":(?P<all>((?P<server>[a-z0-9.-]+)\s(?P<reply>\d\d\d|\w+)\s(?P<nick>[a-z0-9.-]+)\s(?P<suffix>.*)))(?P<target>)(?P<hostmask>)(?P<hgl>)(?P<cmd>)(?P<args>)", re.I)
 		self.patUMnorm = re.compile(r"(?:(?P<hgl>\w+):\s)?(?P<cmd>[,.:;?!]\w+)\s?(?P<args>.*)(?P<reply>)(?P<server>)", re.I)
 		self.patUMnorm = re.compile(r"(?:(?P<hgl>\w+):\s)?((?P<cmdPref>[,.:;?!])(?P<cmd>\w+)\s?)?(?P<args>.*)(?P<reply>)(?P<server>)", re.I)
 		self.patMsgWHO = re.compile(r"~?(?P<ident>\w+)\s(?P<ip>[a-z0-9\.\-]+)\s(?P<server>[a-z0-9.-]+)\s(?P<nick>\w+)\s(?P<away>H|G)(?P<registered>r?)(?P<bot>B?)(?P<prefix>\*?[%~+@&]?)\s(?P<steps>:[0-9])\s(?P<realname>.*)", re.I)
 		self.patNoneMsg = re.compile(r"((?P<nick>)(?P<hostmask>)(?P<type>)(?P<target>))(?P<suffix>(?:(?:(?P<hgl>))(?P<cmd>)(?P<args>))?)(?P<reply>)(?P<server>).*?", re.I)
 		self.patUMvoid = re.compile(r"(?P<hgl>)(?P<cmd>)(?P<args>)(?P<reply>)(?P<server>).*", re.I)
-
-		#self.patUMnorm = re.compile(r"(?:(?P<hgl>\w+):)?\s?(?P<cmd>:\S*)\s?(?P<args>.*)(?P<reply>)(?P<server>)", re.I)
-		#self.patUserMsg = re.compile(r":((?P<nick>\w+)!~?(?P<hostmask>[a-z0-9.@-]+)\s(?P<type>\w+)[\s:]*(?P<target>#?\w+))(?:\s:)?(?P<omnom>\([#O]\)<\w+>)\s?(?P<suffix>(?:(?P<hgl>\w*):)*\s?(?P<cmd>\S*)\s?(?P<args>.*))(?P<reply>)(?P<server>)", re.I)
-
-
 
 		# Handler
 		self.handler = []
@@ -663,7 +646,6 @@ class IRCBot(threading.Thread):
 		#self.thread_consInp.start()
 		while self.status != "stopped":
 			try:
-#				echo(type(self.failinfo))
 
 				if self.debug_break:
 					self.debug_break = False
@@ -678,13 +660,16 @@ class IRCBot(threading.Thread):
 						error()
 
 				if self.failed:
-					echo(self.failinfo[0], "warn")
+					logging.error(self.failinfo[0])
 
 					if self.failinfo[0]["type"] == "ConnectionResetError":
 						self.shutdown("restart", self.failinfo[0]["type"], 15, 1)
-					
+
 					elif self.failinfo[0]["type"] == "BrokenPipeError":
 						self.shutdown("restart", self.failinfo[0]["type"], 15, 1)
+					
+					if self.failinfo[0]["type"] == "PingTimeout":
+						self.shutdown("reconnect", self.failinfo[0]["type"], 15, 1)
 					
 					elif self.failinfo[0]["type"] == "NickError":
 						self.shutdown("reconnect", self.failinfo[0]["type"], 15, 1)
@@ -696,10 +681,8 @@ class IRCBot(threading.Thread):
 						self.shutdown("stop", self.failinfo[0]["type"], 0, 0)
 					
 					else:
-						print("\r\n")
-						print(self.failinfo[0])
-						print("\r\n")
-						echo(self.failinfo[0]["type"], "warn")
+						logging.critical(self.failinfo[0])
+						#logging.critical(self.failinfo[0]["type"])
 						self.shutdown("stop", "Unknown Error: " + self.failinfo[0]["type"], 0, 0)
 
 				time.sleep(0.01)
@@ -736,14 +719,14 @@ class IRCBot(threading.Thread):
 					if not self.is_up():
 						break
 					elif type(wait) is float: # or type(pong) is int:
-						temp = "pingtimeout! %s" % pong
-						echo(temp, "warn")
+						temp = "pingtimeout! %s" % wait
+						logging.warning(temp)
 						self.failed = True
 						self.failinfo.insert(0, {"type":"PingTimeout", "info":str(pong), "time":time.time()})
 				except:
 					error(info="detectTimeout")
 
-		echo("bye from detectTimeout")
+		logging.debug("bye from detectTimeout")
 
 	def handle(self):
 		# this function is for message handling
@@ -754,15 +737,16 @@ class IRCBot(threading.Thread):
 				if self.sH_irc.q.empty():
 					time.sleep(0.1)
 				else:
-					line = self.sH_irc.q.get()
+					line = self.sH_irc.q.get().strip().strip()
 
-					# search
 					for item in self.search:
 						if line.find(item) != -1:
 							self.search[item] = line
 					
 					if re.match(self.patUMPre, line) != None:
-						echo(line, "recv")
+
+						logging.receive(line) 
+
 						msg = re.match(self.patUMPre, line).groupdict()
 						try:
 							msg.update(re.match(self.patUMnorm, msg["suffix"]).groupdict())
@@ -784,7 +768,7 @@ class IRCBot(threading.Thread):
 							fromOwner = msg["ident"] == self.config["owner"].lower()
 
 							if msg["args"].find(" ") != -1:
-								args = msg["args"].split()		#make a list out of the arguments
+								args = msg["args"].split()		#make a list from the arguments
 							
 							elif msg["args"] == "":
 								args = []
@@ -810,20 +794,23 @@ class IRCBot(threading.Thread):
 						if self.logPingPong == False and msg["reply"] in ["PING", "PONG"]:
 							pass
 						else:
-							echo(line, "recv")
+
+							logging.receive(line)
 						
 						self.plH_server.q.put({"msg":msg})
 						self.sH_irc.q.task_done()
 					else:
 						msg = re.match(self.patNoneMsg, line).groupdict()
-						echo(line, "recv")
+
+						logging.receive(line)
+
 						if line.find("PING") != -1:	#Ping request response thing
 							self.sendRaw("PONG {}\r\n".format(".".join(line.split()[1:3])))
 
 						self.sH_irc.q.task_done()
 			except:
 				error(info="handle")
-		echo("bye from handle")
+		logging.debug("bye from handle")
 
 	def error(self, target=False, info="", fail=False):
 		tb = traceback.format_exc()
@@ -834,8 +821,8 @@ class IRCBot(threading.Thread):
 			self.failed = True
 			self.failinfo.insert(0, {"type":temp[0].replace(":",""), "time":time.time()})
 		else:
-			echo(tb, "warn")
-			echo("info:" + info, "warn")
+			logging.error(tb)
+			logging.error("info:" + info)
 
 		if self.status == "connected":
 			self.sendowner(errinfo)
@@ -866,9 +853,9 @@ class IRCBot(threading.Thread):
 		self.sendRaw("USER %s %s %s %s\r\n" % ("nBot","youwishyoudknow",self.serverName, self.realname))
 
 		for i in range(1,6):
-			wait = self.waitFor("001", 2.1)
+			wait = self.waitFor("001", 4.2)
 			if not self.is_up():
-				echo("bye from connecting")
+				logging.debug("bye from connecting")
 				return
 			if type(wait)is float:
 				if i >= 5:
@@ -907,25 +894,20 @@ class IRCBot(threading.Thread):
 			self.joinChan(chans)
 		
 		self.status = "connected"
-		echo("connected!")
-		#self.connected = True
+		logging.info("connected!")
 
-	def sendRaw(self, msg, pref = "send", verbose = True):
+	def sendRaw(self, msg, loglevel=21, verbose = True):
+		msg = str(msg)
 		if verbose == True:
-			echo(msg, pref)
-		elif verbose == False:
-			pass
+			logging.log(loglevel, msg)#, pref)
 		else:
-			echo(verbose, pref)
+			logging.log(loglevel, "[not verbose message]")#, pref)
 
 		try:
-			msg = str(msg).replace("\r", "").replace("\n", "") + "\r\n"
-			self.sH_irc.send(msg)
-			#self.sH_irc.send(bytes(msg, self.encoding))
+			#msg = str(msg).replace("\r", "").replace("\n", "") + "\r\n"
+			self.sH_irc.send(msg+"\r\n")
 		except Exception as e:
 			error(info="sendRaw", fail=True)
-			# self.failed = True
-			# self.failinfo.insert(0, {"type":type(e).__name__, "action":"restart", "time":time.time()})
 			
 	def joinChan(self, chan, msg = ""):
 		if chan[0] == "_":
@@ -946,7 +928,7 @@ class IRCBot(threading.Thread):
 			if time.time() - self.fakeMsg[line] < 4.2:
 				return False
 		self.fakeMsg[line] = time.time()
-		echo("resending '"+line+"'")
+		logging.debug("resending '"+line+"'")
 		self.sH_irc.q.put(line)
 	
 	def privmsg(self, target, msg = "Hey!"):
@@ -971,7 +953,7 @@ class IRCBot(threading.Thread):
 
 	def waitFor(self, key, timeout = 4.2, verbose = True):
 		if verbose:
-			echo("waiting for %s" % (key))
+			logging.info("waiting for %s" % (key))
 		if not key in self.search:
 			self.search[key] = False
 	
@@ -985,12 +967,12 @@ class IRCBot(threading.Thread):
 				ret = self.search[key]
 				del self.search[key]
 				if verbose:
-					echo("'%s' found!" % (key))
+					logging.info("'%s' found!" % (key))
 				return ret
 			passedTime = time.time() - startTime
 
 		if verbose:
-			echo("timeout %s: '%s'" % (passedTime, self.search[key]))
+			logging.info("timeout %s: '%s'" % (passedTime, self.search[key]))
 		del self.search[key]
 		return float(passedTime)
 
@@ -999,38 +981,26 @@ class IRCBot(threading.Thread):
 
 	def handle_keybInt(self, *args):
 		signal.signal(signal.SIGINT, signal.SIG_DFL)
-		echo("KeyboardInterrupt", "warn")
-#		echo(args, "warn")
+		logging.warning("KeyboardInterrupt")
 		self.failinfo.insert(0, {"type":"KeyboardInterrupt", "time":time.time(), "action":"stop"})
 		self.failed = True
 
-#		self.shutdown("stop", reason = "manual shutdown", downTime = 1, delay = 1)
-		
-	def handle_resize(self, *args):
-		w,h = os.get_terminal_size()
-		LogOutp.win.resize(h,w)
-		SCREEN.resize(h,w)
-		curses.resizeterm(h,w)
-		LogOutp.height = h - 1
-		LogOutp.width = w - 1
-		LogOutp.refr()
-
 	def shutdown(self, action, reason=None, downTime=10, delay=1):
 		
-		echo("quitting irc server")
+		logging.info("quitting irc server")
 		try:
 			self.sendRaw("QUIT %s" % (reason))
 
-			echo("closing connection")
+			logging.debug("closing connection")
 			self.status = "disconnected"
 			#self.connected = False
 			self.sH_irc.stop()
 
-			echo("clearing queues")
+			logging.debug("clearing queues")
 			self.plH_user.q.queue.clear()
 			self.sH_irc.q.queue.clear()
 						
-			echo("deleting socket and threads")
+			logging.debug("deleting socket and threads")
 			self.handler.remove(self.sH_irc)
 			del self.thread_connect
 			del self.sH_irc
@@ -1038,9 +1008,9 @@ class IRCBot(threading.Thread):
 			error()
 
 		if action == "reconnect":
-			echo("recreating socket and threads")
+			logging.debug("recreating socket and threads")
 			if self.localhost:
-				temp = "127.0.0.1" #not working
+				temp = "127.0.0.1"
 			else:
 				temp = self.config["network"]
 
@@ -1050,10 +1020,10 @@ class IRCBot(threading.Thread):
 
 			self.failed = False
 
-			echo("waiting " + str(downTime) + " seconds")
+			logging.info("waiting " + str(downTime) + " seconds")
 			time.sleep(downTime)
 					
-			echo("reconnecting NOW")
+			logging.info("reconnecting NOW")
 			self.thread_connect.start()
 
 		else:
@@ -1061,10 +1031,8 @@ class IRCBot(threading.Thread):
 			self.status = "stopping"
 			#self._stopnow = True
 
-			LogOutp.stop()
-			Echo.end(SCREEN)
-			echo(action + " because " + reason)
-			echo("waiting for threads to stop...")
+			logging.info(action + " because " + reason)
+			logging.info("waiting for threads to stop...")
 			
 			for h in self.handler:
 				h.stop()
@@ -1081,20 +1049,20 @@ class IRCBot(threading.Thread):
 					omitted = "daemon"
 
 				if omitted:
-					echo("omitted {omitted} thread {thread}".format(thread=t.name, omitted=omitted))
+					logging.debug("omitted {omitted} thread {thread}".format(thread=t.name, omitted=omitted))
 				else:
-					echo("joining thread {thread}".format(thread=t.name), end="\r")
+					logging.debug("joining thread {thread}".format(thread=t.name))
 
-					t.join(5)
+					t.join(21)
 					if t.is_alive():
-						echo("thread {thread} did not exit within 5 seconds!".format(thread=t.name))
+						logging.debug("thread {thread} did not exit within 21 seconds!".format(thread=t.name))
 					else:
-						echo("thread {thread} exited!".format(thread=t.name))
+						logging.debug("thread {thread} exited!".format(thread=t.name))
 
-			echo("all threads stopped, exiting in " + str(downTime) + " seconds")
+			logging.info("all threads stopped, exiting in " + str(downTime) + " seconds")
 			time.sleep(downTime)
 			self.status = "stopped"
-			print("bye from shutdown")
+			logging.debug("bye from shutdown")
 			return
 
 if __name__ == "__main__" and False:

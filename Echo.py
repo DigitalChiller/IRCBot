@@ -120,7 +120,12 @@ class ScrollText():
 
 	def echo(self, msg, type = None, replace=0, *, fancy = False, **kwargs):
 		if self._stopnow:
-			print(msg)
+			msg = str(msg)
+			msg = msg.strip()
+			#msg = msg.replace("\r", "")
+			if len(msg) <= 1:
+				return
+			print(msg) #.replace("\n", "\n\r")
 			return
 		try:
 			if type == None:
